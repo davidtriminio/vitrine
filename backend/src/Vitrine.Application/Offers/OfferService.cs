@@ -10,6 +10,8 @@ public interface IOfferService
 
     Task<IReadOnlyList<ActiveOfferBannerResponse>> ListActiveBannersAsync(CancellationToken ct = default);
 
+    Task<ActiveOfferBannerResponse> GetBannerByIdAsync(Guid id, CancellationToken ct = default);
+
     Task<OfferResponse> GetByIdAsync(Guid id, CancellationToken ct = default);
 
     Task<OfferResponse> CreateAsync(CreateOfferRequest request, CancellationToken ct = default);
@@ -45,6 +47,14 @@ public sealed class OfferService : IOfferService
             .Where(o => o.BannerTitle is not null)
             .Select(OfferMapper.ToBanner)
             .ToList();
+    }
+
+    public async Task<ActiveOfferBannerResponse> GetBannerByIdAsync(Guid id, CancellationToken ct = default)
+    {
+        var offer = await _offers.GetByIdAsync(id, ct)
+            ?? throw new NotFoundException($"Offer '{id}' was not found.");
+
+        return OfferMapper.ToBanner(offer);
     }
 
     public async Task<OfferResponse> GetByIdAsync(Guid id, CancellationToken ct = default)

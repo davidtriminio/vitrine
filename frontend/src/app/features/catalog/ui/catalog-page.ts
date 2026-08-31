@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { LucideSearch } from '@lucide/angular';
 import { TPipe } from '../../../core/i18n/t-pipe';
 import { SettingsStore } from '../../../core/settings/settings-store';
@@ -12,6 +13,7 @@ import { ProductCardComponent } from './product-card';
   selector: 'app-catalog-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    RouterLink,
     ProductCardComponent,
     OfferBannerComponent,
     ButtonComponent,
@@ -57,7 +59,12 @@ import { ProductCardComponent } from './product-card';
       @if (store.offers().length > 0) {
         <div class="mt-5 grid gap-4">
           @for (offer of store.offers(); track offer.id) {
-            <app-offer-banner [offer]="offer" />
+            <a
+              [routerLink]="['/promocion', offer.id]"
+              class="block rounded-lg transition-transform hover:-translate-y-0.5 focus-visible:-translate-y-0.5"
+            >
+              <app-offer-banner [offer]="offer" />
+            </a>
           }
         </div>
       }

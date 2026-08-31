@@ -52,7 +52,16 @@ public sealed class ProductService : IProductService
 
         IReadOnlyCollection<Guid>? offerProductIds = null;
         IReadOnlyCollection<Guid>? offerCategoryIds = null;
-        if (query.OnlyOnOffer)
+
+        if (query.OfferId is Guid offerId)
+        {
+            // Promotion view: restrict to the products a single offer applies to.
+            var offer = await _offers.GetByIdAsync(offerId, ct)
+                ?? throw new NotFoundException($"Offer '{offerId}' was not found.");
+            offerProductIds = offer.Scope == OfferScope.Product ? new[] { offer.TargetId } : Array.Empty<Guid>();
+            offerCategoryIds = offer.Scope == OfferScope.Category ? new[] { offer.TargetId } : Array.Empty<Guid>();
+        }
+        else if (query.OnlyOnOffer)
         {
             offerProductIds = activeOffers.Where(o => o.Scope == OfferScope.Product).Select(o => o.TargetId).ToList();
             offerCategoryIds = activeOffers.Where(o => o.Scope == OfferScope.Category).Select(o => o.TargetId).ToList();

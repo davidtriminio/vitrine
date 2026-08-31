@@ -40,7 +40,9 @@ public sealed class ProductRepository : IProductRepository
             q = q.Where(p => EF.Functions.Like(p.Name, pattern) || EF.Functions.Like(p.Sku, pattern));
         }
 
-        if (query.OnlyOnOffer)
+        // Restrict to specific products/categories (used by "only on offer" and by a
+        // single-offer promotion view). Applied whenever the caller supplies the sets.
+        if (onOfferProductIds is not null || onOfferCategoryIds is not null)
         {
             var productIds = (onOfferProductIds ?? Array.Empty<Guid>()).ToArray();
             var categoryIds = (onOfferCategoryIds ?? Array.Empty<Guid>()).ToArray();

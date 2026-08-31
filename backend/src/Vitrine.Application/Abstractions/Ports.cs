@@ -12,7 +12,8 @@ public sealed record ProductQuery(
     Guid? CategoryId = null,
     string? Search = null,
     bool OnlyOnOffer = false,
-    bool IncludeInactive = false)
+    bool IncludeInactive = false,
+    Guid? OfferId = null)
 {
     public const int MaxPageSize = 100;
 

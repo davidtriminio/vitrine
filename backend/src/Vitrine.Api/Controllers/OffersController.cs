@@ -19,6 +19,12 @@ public sealed class OffersController : ControllerBase
     public Task<IReadOnlyList<ActiveOfferBannerResponse>> ListActive(CancellationToken ct) =>
         _offers.ListActiveBannersAsync(ct);
 
+    /// <summary>Public: banner info for a single offer (for the promotion view).</summary>
+    [HttpGet("{id:guid}/banner")]
+    [AllowAnonymous]
+    public Task<ActiveOfferBannerResponse> GetBanner(Guid id, CancellationToken ct) =>
+        _offers.GetBannerByIdAsync(id, ct);
+
     [HttpGet]
     [Authorize(Roles = AdminUser.AdminRole)]
     public Task<IReadOnlyList<OfferResponse>> List(CancellationToken ct) => _offers.ListAsync(ct);
