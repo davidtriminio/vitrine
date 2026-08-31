@@ -534,3 +534,13 @@ Generated/
 .vscode/settings.json
 .vscode
 
+
+# Internal design/AI docs (not published)
+CLAUDE.md
+CLAUDE-DESIGN.md
+design.md
+
+# Local SQLite databases
+*.db
+*.db-shm
+*.db-wal
