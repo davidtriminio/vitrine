@@ -63,6 +63,17 @@ public sealed class ProductRepository : IProductRepository
     public Task<bool> SkuExistsAsync(string sku, Guid? excludeId = null, CancellationToken ct = default) =>
         _db.Products.AnyAsync(p => p.Sku == sku && (excludeId == null || p.Id != excludeId), ct);
 
+    public async Task<int> GetMaxSkuNumberAsync(CancellationToken ct = default)
+    {
+        // SKUs are stored as zero-padded numeric strings; compute the max in memory
+        // (catalog sizes here are small and this avoids provider-specific string casts).
+        var skus = await _db.Products.Select(p => p.Sku).ToListAsync(ct);
+        return skus
+            .Select(sku => int.TryParse(sku, out var value) ? value : 0)
+            .DefaultIfEmpty(0)
+            .Max();
+    }
+
     public async Task AddAsync(Product product, CancellationToken ct = default) =>
         await _db.Products.AddAsync(product, ct);
 

@@ -13,7 +13,7 @@ public sealed class PricingServiceTests
     private readonly DateTimeOffset _now = DateTimeOffset.UtcNow;
 
     private Product BuildProduct(Guid categoryId, decimal price = 1000m) =>
-        new(Guid.NewGuid(), "P", "SKU-1", "d", categoryId, Money.Of(price));
+        new(Guid.NewGuid(), "P", "001", "d", categoryId, Money.Of(price));
 
     private Offer BuildOffer(DiscountType type, decimal value, OfferScope scope, Guid targetId) =>
         new(Guid.NewGuid(), "O", type, value, scope, targetId, _now.AddDays(-1), _now.AddDays(1));

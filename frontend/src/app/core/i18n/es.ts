@@ -49,6 +49,8 @@ export const es = {
   'admin.editProduct': 'Editar producto',
   'admin.name': 'Nombre',
   'admin.sku': 'SKU',
+  'admin.skuHint': 'Solo números (ej. 001).',
+  'admin.skuInvalid': 'El SKU debe ser numérico.',
   'admin.description': 'Descripción',
   'admin.category': 'Categoría',
   'admin.basePrice': 'Precio base (L)',
