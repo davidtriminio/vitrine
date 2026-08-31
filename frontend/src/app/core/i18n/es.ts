@@ -29,6 +29,14 @@ export const es = {
 
   'offer.discountPercent': '{value}% de descuento',
   'offer.discountAmount': 'L {value} de descuento',
+  'offer.viewProducts': 'Ver productos',
+
+  'promotion.products': 'Productos en promoción',
+  'promotion.empty': 'No hay productos en esta promoción.',
+  'promotion.back': 'Volver al catálogo',
+
+  'sidebar.offers': 'Ofertas',
+  'sidebar.noOffers': 'No hay ofertas activas.',
 
   'admin.loginTitle': 'Ingresar',
   'admin.username': 'Usuario',

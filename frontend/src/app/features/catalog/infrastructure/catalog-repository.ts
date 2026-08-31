@@ -45,6 +45,23 @@ export class CatalogRepository {
       .pipe(map(mapPagedProducts));
   }
 
+  getProductsByOffer(offerId: string, page: number): Observable<Paged<Product>> {
+    const params = new HttpParams()
+      .set('page', page)
+      .set('pageSize', PAGE_SIZE)
+      .set('offerId', offerId);
+
+    return this.http
+      .get<PagedDto<ProductDto>>(`${this.apiBaseUrl}/api/v1/products`, { params })
+      .pipe(map(mapPagedProducts));
+  }
+
+  getOfferBanner(id: string): Observable<OfferBanner> {
+    return this.http
+      .get<OfferBannerDto>(`${this.apiBaseUrl}/api/v1/offers/${id}/banner`)
+      .pipe(map(mapOfferBanner));
+  }
+
   getProduct(id: string): Observable<Product> {
     return this.http
       .get<ProductDto>(`${this.apiBaseUrl}/api/v1/products/${id}`)

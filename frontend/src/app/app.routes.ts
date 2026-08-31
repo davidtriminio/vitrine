@@ -13,6 +13,11 @@ export const routes: Routes = [
       import('./features/catalog/ui/product-detail-page').then((m) => m.ProductDetailPage),
   },
   {
+    path: 'promocion/:offerId',
+    loadComponent: () =>
+      import('./features/offers/ui/promotion-page').then((m) => m.PromotionPage),
+  },
+  {
     path: 'admin/login',
     loadComponent: () => import('./features/admin/ui/login-page').then((m) => m.LoginPage),
   },
