@@ -11,6 +11,7 @@ import {
   mapPagedProducts,
   mapProduct,
 } from '../../catalog/infrastructure/catalog-dtos';
+import { OfferAdmin, OfferWriteRequest, mapOfferAdmin } from './offer-admin';
 
 export interface ProductWriteRequest {
   name: string;
@@ -59,5 +60,27 @@ export class AdminRepository {
 
   deleteProduct(id: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/products/${id}`);
+  }
+
+  getOffers(): Observable<OfferAdmin[]> {
+    return this.http
+      .get<OfferAdmin[]>(`${this.base}/offers`)
+      .pipe(map((dtos) => dtos.map(mapOfferAdmin)));
+  }
+
+  getOffer(id: string): Observable<OfferAdmin> {
+    return this.http.get<OfferAdmin>(`${this.base}/offers/${id}`).pipe(map(mapOfferAdmin));
+  }
+
+  createOffer(request: OfferWriteRequest): Observable<OfferAdmin> {
+    return this.http.post<OfferAdmin>(`${this.base}/offers`, request).pipe(map(mapOfferAdmin));
+  }
+
+  updateOffer(id: string, request: OfferWriteRequest): Observable<OfferAdmin> {
+    return this.http.put<OfferAdmin>(`${this.base}/offers/${id}`, request).pipe(map(mapOfferAdmin));
+  }
+
+  deleteOffer(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/offers/${id}`);
   }
 }

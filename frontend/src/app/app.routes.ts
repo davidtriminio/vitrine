@@ -39,5 +39,23 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/admin/ui/product-form-page').then((m) => m.ProductFormPage),
   },
+  {
+    path: 'admin/ofertas',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/admin/ui/admin-offers-page').then((m) => m.AdminOffersPage),
+  },
+  {
+    path: 'admin/ofertas/nueva',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/admin/ui/offer-form-page').then((m) => m.OfferFormPage),
+  },
+  {
+    path: 'admin/ofertas/:id',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/admin/ui/offer-form-page').then((m) => m.OfferFormPage),
+  },
   { path: '**', redirectTo: '' },
 ];
