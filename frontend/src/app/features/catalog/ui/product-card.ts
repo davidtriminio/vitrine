@@ -13,30 +13,34 @@ import { Product } from '../domain/catalog-models';
   template: `
     <a
       [routerLink]="['/producto', product().id]"
-      class="group block overflow-hidden rounded-lg border border-muted bg-surface-2 transition-shadow hover:shadow-md focus-visible:shadow-md"
+      class="group flex h-full flex-col overflow-hidden rounded-lg border border-muted/60 bg-surface shadow-sm ring-1 ring-black/[0.02] transition-all duration-200 hover:-translate-y-0.5 hover:border-muted hover:shadow-lg focus-visible:-translate-y-0.5 focus-visible:shadow-lg"
     >
-      <div class="relative aspect-[4/5] overflow-hidden bg-muted">
+      <div class="relative aspect-[4/5] overflow-hidden bg-surface-2">
         @if (product().images.length > 0) {
           <img
             [src]="product().images[0]"
             [alt]="product().name"
             loading="lazy"
-            class="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+            class="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
           />
         }
         @if (product().price.hasDiscount) {
-          <div class="absolute left-2 top-2">
+          <div class="absolute left-3 top-3">
             <app-badge tone="offer">{{ 'product.offerBadge' | t }}</app-badge>
           </div>
         }
       </div>
 
-      <div class="p-3">
-        <p class="text-xs text-fg-muted">{{ product().categoryName }}</p>
-        <h3 class="mt-0.5 line-clamp-2 text-sm font-semibold text-fg">{{ product().name }}</h3>
+      <div class="flex flex-1 flex-col p-4">
+        <p class="text-[11px] font-medium uppercase tracking-wide text-fg-muted">
+          {{ product().categoryName }}
+        </p>
+        <h3 class="mt-1 line-clamp-2 text-[15px] font-semibold leading-snug text-fg">
+          {{ product().name }}
+        </h3>
 
-        <div class="mt-2 flex items-baseline gap-2">
-          <span class="text-base font-bold text-fg">
+        <div class="mt-auto flex items-baseline gap-2 pt-3">
+          <span class="text-lg font-bold tracking-tight text-fg">
             {{ product().price.finalPrice | money }}
           </span>
           @if (product().price.hasDiscount) {
