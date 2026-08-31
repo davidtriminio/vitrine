@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Vitrine.Api/Vitrine.Api.csproj" />
+    <Project Path="src/Vitrine.Application/Vitrine.Application.csproj" />
+    <Project Path="src/Vitrine.Domain/Vitrine.Domain.csproj" />
+    <Project Path="src/Vitrine.Infrastructure/Vitrine.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Vitrine.Tests/Vitrine.Tests.csproj" />
+  </Folder>
+</Solution>
