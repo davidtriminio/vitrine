@@ -7,6 +7,7 @@ import { ButtonComponent } from '../../../shared/ui/button/button';
 import { OfferBannerComponent } from '../../offers/ui/offer-banner';
 import { CatalogStore } from '../application/catalog-store';
 import { ProductCardComponent } from './product-card';
+import { SidebarComponent } from './sidebar';
 
 /** Smart container for the public catalog: hero, offers, filters and product grid. */
 @Component({
@@ -16,6 +17,7 @@ import { ProductCardComponent } from './product-card';
     RouterLink,
     ProductCardComponent,
     OfferBannerComponent,
+    SidebarComponent,
     ButtonComponent,
     LucideSearch,
     TPipe,
@@ -55,9 +57,21 @@ import { ProductCardComponent } from './product-card';
         </div>
       }
 
+      <!-- Two-column storefront: sidebar + content -->
+      <div class="mt-6 lg:grid lg:grid-cols-[240px_1fr] lg:gap-8">
+        <aside class="hidden lg:block">
+          <app-sidebar
+            [offers]="store.offers()"
+            [categories]="store.categories()"
+            [activeCategoryId]="store.filters().categoryId"
+            (selectCategory)="store.setCategory($event)"
+          />
+        </aside>
+
+        <div>
       <!-- Offer banners -->
       @if (store.offers().length > 0) {
-        <div class="mt-5 grid gap-4">
+        <div class="grid gap-4">
           @for (offer of store.offers(); track offer.id) {
             <a
               [routerLink]="['/promocion', offer.id]"
@@ -144,6 +158,8 @@ import { ProductCardComponent } from './product-card';
             </div>
           }
         }
+      </div>
+        </div>
       </div>
     </div>
   `,
