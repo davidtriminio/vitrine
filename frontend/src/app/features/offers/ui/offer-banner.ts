@@ -1,31 +1,34 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { OfferBanner } from '../../catalog/domain/catalog-models';
 
 /**
- * Rectangular offer banner (landing style). Background color/image come from the
- * offer itself, so each brand decorates promotions without touching this component.
+ * Rectangular offer banner (landing style). Composes an optional cover photo with a
+ * legibility scrim and the offer text; background color/image come from the offer, so
+ * each brand decorates promotions without touching this component.
  */
 @Component({
   selector: 'app-offer-banner',
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="relative overflow-hidden rounded-lg p-6 sm:p-8"
+      class="relative flex min-h-36 flex-col justify-center overflow-hidden rounded-lg"
       [style.background-color]="offer().bannerBackgroundColor || 'var(--color-primary)'"
     >
       @if (offer().bannerImageUrl) {
         <img
           [src]="offer().bannerImageUrl"
           alt=""
-          class="absolute inset-0 h-full w-full object-cover opacity-30"
+          class="absolute inset-0 h-full w-full object-cover"
         />
+        <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent"></div>
       }
-      <div class="relative">
-        <p class="text-2xl font-bold text-primary-fg sm:text-3xl">
+
+      <div class="relative p-6 sm:p-8">
+        <p class="text-2xl font-bold sm:text-3xl" [class]="titleColor()">
           {{ offer().bannerTitle }}
         </p>
         @if (offer().bannerSubtitle) {
-          <p class="mt-1 text-sm font-medium text-primary-fg/80 sm:text-base">
+          <p class="mt-1 text-sm font-medium sm:text-base" [class]="subtitleColor()">
             {{ offer().bannerSubtitle }}
           </p>
         }
@@ -35,4 +38,10 @@ import { OfferBanner } from '../../catalog/domain/catalog-models';
 })
 export class OfferBannerComponent {
   readonly offer = input.required<OfferBanner>();
+
+  // Over a photo we need light text; over a solid brand color we use the token pair.
+  protected readonly titleColor = computed(() => (this.offer().bannerImageUrl ? 'text-white' : 'text-primary-fg'));
+  protected readonly subtitleColor = computed(() =>
+    this.offer().bannerImageUrl ? 'text-white/85' : 'text-primary-fg/80',
+  );
 }
