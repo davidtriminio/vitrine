@@ -40,6 +40,12 @@ export class AdminRepository {
       .pipe(map(mapPagedProducts));
   }
 
+  getNextSku(): Observable<string> {
+    return this.http
+      .get<{ sku: string }>(`${this.base}/products/next-sku`)
+      .pipe(map((response) => response.sku));
+  }
+
   getProduct(id: string): Observable<Product> {
     return this.http.get<ProductDto>(`${this.base}/products/${id}`).pipe(map(mapProduct));
   }

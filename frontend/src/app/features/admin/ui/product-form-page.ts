@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { FormField, form, required } from '@angular/forms/signals';
+import { FormField, form, pattern, required } from '@angular/forms/signals';
 import { AppError } from '../../../core/errors/app-error';
 import { TPipe } from '../../../core/i18n/t-pipe';
 import { ButtonComponent } from '../../../shared/ui/button/button';
@@ -46,7 +46,14 @@ const EMPTY_MODEL: ProductFormModel = {
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
             <label for="sku" class="text-sm font-medium text-fg">{{ 'admin.sku' | t }}</label>
-            <input id="sku" [formField]="productForm.sku" [class]="inputClass" />
+            <input
+              id="sku"
+              inputmode="numeric"
+              placeholder="001"
+              [formField]="productForm.sku"
+              [class]="inputClass"
+            />
+            <p class="mt-1 text-xs text-fg-muted">{{ 'admin.skuHint' | t }}</p>
           </div>
           <div>
             <label for="basePrice" class="text-sm font-medium text-fg">
@@ -138,6 +145,7 @@ export class ProductFormPage implements OnInit {
   protected readonly productForm = form(this.model, (path) => {
     required(path.name);
     required(path.sku);
+    pattern(path.sku, /^\d+$/, { message: 'admin.skuInvalid' });
     required(path.categoryId);
   });
 
@@ -163,6 +171,14 @@ export class ProductFormPage implements OnInit {
           });
         },
         error: (error: AppError) => this.errorMessage.set(error.title),
+      });
+    } else {
+      // Suggest the next available numeric SKU for new products.
+      this.repository.getNextSku().subscribe({
+        next: (sku) => this.model.update((current) => ({ ...current, sku })),
+        error: () => {
+          /* leave SKU empty if the suggestion fails */
+        },
       });
     }
   }

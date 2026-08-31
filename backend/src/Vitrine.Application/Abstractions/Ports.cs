@@ -42,6 +42,9 @@ public interface IProductRepository
 
     Task<bool> SkuExistsAsync(string sku, Guid? excludeId = null, CancellationToken ct = default);
 
+    /// <summary>Highest existing numeric SKU value (0 when there are no products).</summary>
+    Task<int> GetMaxSkuNumberAsync(CancellationToken ct = default);
+
     Task AddAsync(Product product, CancellationToken ct = default);
 
     void Update(Product product);
