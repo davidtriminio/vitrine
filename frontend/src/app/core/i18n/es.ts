@@ -58,6 +58,26 @@ export const es = {
   'admin.saveError': 'No pudimos guardar. Revisá los datos.',
   'admin.status.active': 'Activo',
   'admin.status.inactive': 'Inactivo',
+
+  'admin.offers': 'Ofertas',
+  'admin.newOffer': 'Nueva oferta',
+  'admin.editOffer': 'Editar oferta',
+  'admin.offerName': 'Nombre de la oferta',
+  'admin.discountType': 'Tipo de descuento',
+  'admin.discountPercentage': 'Porcentaje',
+  'admin.discountFixed': 'Monto fijo',
+  'admin.value': 'Valor',
+  'admin.scope': 'Alcance',
+  'admin.scopeProduct': 'Producto',
+  'admin.scopeCategory': 'Categoría',
+  'admin.target': 'Aplica a',
+  'admin.startsAt': 'Inicio',
+  'admin.endsAt': 'Fin',
+  'admin.bannerTitle': 'Título del banner',
+  'admin.bannerSubtitle': 'Subtítulo del banner',
+  'admin.bannerColor': 'Color de fondo (hex)',
+  'admin.bannerImage': 'Imagen del banner (URL)',
+  'admin.offerDates': 'Vigencia',
 } as const;
 
 export type TranslationKey = keyof typeof es;
