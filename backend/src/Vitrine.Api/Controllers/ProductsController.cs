@@ -40,6 +40,12 @@ public sealed class ProductsController : ControllerBase
         CancellationToken ct = default) =>
         _products.ListAsync(new ProductQuery(page, pageSize, categoryId, search, false, IncludeInactive: true), ct);
 
+    /// <summary>Admin: the next available numeric SKU suggestion for the create form.</summary>
+    [HttpGet("next-sku")]
+    [Authorize(Roles = AdminUser.AdminRole)]
+    public async Task<SkuSuggestionResponse> NextSku(CancellationToken ct) =>
+        new(await _products.SuggestNextSkuAsync(ct));
+
     [HttpGet("{id:guid}")]
     [AllowAnonymous]
     public Task<ProductResponse> GetById(Guid id, CancellationToken ct) => _products.GetByIdAsync(id, ct);

@@ -54,6 +54,8 @@ public sealed record UpdateProductRequest(
     IReadOnlyList<ProductAttributeDto>? Attributes,
     bool IsActive);
 
+public sealed record SkuSuggestionResponse(string Sku);
+
 public sealed record CategoryResponse(Guid Id, string Name, string Slug);
 
 public sealed record CreateCategoryRequest(string Name, string Slug);

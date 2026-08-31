@@ -29,10 +29,12 @@ export class SettingsStore {
       );
       const brand = mapBrandSettings(dto);
       this.brandSignal.set(brand);
+      // Effective theme = frontend defaults + brand overrides (see default-theme.ts).
       this.theme.apply(brand.themeTokens);
       this.translations.setLocale(brand.defaultLocale);
     } catch {
-      // Storefront still renders with the CSS default (florist) tokens if settings fail.
+      // Storefront still renders with the default (florist) tokens if settings fail.
+      this.theme.resetToDefaults();
     }
   }
 }

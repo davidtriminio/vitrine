@@ -13,6 +13,9 @@ public interface IProductService
 
     Task<ProductResponse> GetByIdAsync(Guid id, CancellationToken ct = default);
 
+    /// <summary>Next available zero-padded numeric SKU (for the admin create form).</summary>
+    Task<string> SuggestNextSkuAsync(CancellationToken ct = default);
+
     Task<ProductResponse> CreateAsync(CreateProductRequest request, CancellationToken ct = default);
 
     Task<ProductResponse> UpdateAsync(Guid id, UpdateProductRequest request, CancellationToken ct = default);
@@ -91,19 +94,26 @@ public sealed class ProductService : IProductService
         return await BuildResponseAsync(product, ct);
     }
 
+    public async Task<string> SuggestNextSkuAsync(CancellationToken ct = default)
+    {
+        var max = await _products.GetMaxSkuNumberAsync(ct);
+        return (max + 1).ToString().PadLeft(Product.SkuWidth, '0');
+    }
+
     public async Task<ProductResponse> CreateAsync(CreateProductRequest request, CancellationToken ct = default)
     {
         await EnsureCategoryExistsAsync(request.CategoryId, ct);
 
-        if (await _products.SkuExistsAsync(request.Sku, null, ct))
+        var sku = Product.NormalizeSku(request.Sku);
+        if (await _products.SkuExistsAsync(sku, null, ct))
         {
-            throw new ConflictException($"A product with SKU '{request.Sku}' already exists.");
+            throw new ConflictException($"A product with SKU '{sku}' already exists.");
         }
 
         var product = new Product(
             Guid.NewGuid(),
             request.Name,
-            request.Sku,
+            sku,
             request.Description,
             request.CategoryId,
             Money.Of(request.BasePrice),
@@ -125,14 +135,15 @@ public sealed class ProductService : IProductService
 
         await EnsureCategoryExistsAsync(request.CategoryId, ct);
 
-        if (await _products.SkuExistsAsync(request.Sku, id, ct))
+        var sku = Product.NormalizeSku(request.Sku);
+        if (await _products.SkuExistsAsync(sku, id, ct))
         {
-            throw new ConflictException($"A product with SKU '{request.Sku}' already exists.");
+            throw new ConflictException($"A product with SKU '{sku}' already exists.");
         }
 
         product.Update(
             request.Name,
-            request.Sku,
+            sku,
             request.Description,
             request.CategoryId,
             Money.Of(request.BasePrice),
