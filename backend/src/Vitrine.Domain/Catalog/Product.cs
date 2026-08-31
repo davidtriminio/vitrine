@@ -8,6 +8,9 @@ namespace Vitrine.Domain.Catalog;
 /// </summary>
 public sealed class Product
 {
+    /// <summary>Minimum SKU width; shorter numeric codes are left-padded with zeros.</summary>
+    public const int SkuWidth = 3;
+
     private readonly List<string> _images = new();
     private readonly List<ProductAttribute> _attributes = new();
 
@@ -91,14 +94,26 @@ public sealed class Product
             throw new DomainException("Product name is required.");
         }
 
+        Name = name.Trim();
+        Sku = NormalizeSku(sku);
+        Description = (description ?? string.Empty).Trim();
+        BasePrice = basePrice;
+    }
+
+    /// <summary>Validates a strictly-numeric SKU and left-pads it to <see cref="SkuWidth"/>.</summary>
+    public static string NormalizeSku(string sku)
+    {
         if (string.IsNullOrWhiteSpace(sku))
         {
             throw new DomainException("Product SKU is required.");
         }
 
-        Name = name.Trim();
-        Sku = sku.Trim();
-        Description = (description ?? string.Empty).Trim();
-        BasePrice = basePrice;
+        var trimmed = sku.Trim();
+        if (!trimmed.All(char.IsDigit))
+        {
+            throw new DomainException("Product SKU must be numeric (digits only).");
+        }
+
+        return trimmed.PadLeft(SkuWidth, '0');
     }
 }

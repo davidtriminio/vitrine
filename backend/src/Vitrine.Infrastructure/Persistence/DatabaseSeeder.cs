@@ -104,19 +104,19 @@ public sealed class DatabaseSeeder
 
         var products = new List<Product>
         {
-            new(Guid.NewGuid(), "Ramo primaveral", "FLR-001",
+            new(Guid.NewGuid(), "Ramo primaveral", "001",
                 "Ramo de temporada con rosas y flores silvestres.", ramos.Id, Money.Of(850m),
                 new[] { "https://picsum.photos/seed/vitrine-1/800/1000" },
                 new[] { new ProductAttribute("Color", "Rosa"), new ProductAttribute("Tamaño", "Mediano") }),
-            new(Guid.NewGuid(), "Ramo de rosas rojas", "FLR-002",
+            new(Guid.NewGuid(), "Ramo de rosas rojas", "002",
                 "Doce rosas rojas clásicas para expresar amor.", ramos.Id, Money.Of(1200m),
                 new[] { "https://picsum.photos/seed/vitrine-2/800/1000" },
                 new[] { new ProductAttribute("Color", "Rojo"), new ProductAttribute("Cantidad", "12 rosas") }),
-            new(Guid.NewGuid(), "Arreglo en caja", "FLR-003",
+            new(Guid.NewGuid(), "Arreglo en caja", "003",
                 "Arreglo floral en caja de regalo elegante.", arreglos.Id, Money.Of(1500m),
                 new[] { "https://picsum.photos/seed/vitrine-3/800/1000" },
                 new[] { new ProductAttribute("Estilo", "Caja"), new ProductAttribute("Ocasión", "Cumpleaños") }),
-            new(Guid.NewGuid(), "Suculenta decorativa", "FLR-004",
+            new(Guid.NewGuid(), "Suculenta decorativa", "004",
                 "Planta suculenta en maceta de cerámica.", plantas.Id, Money.Of(450m),
                 new[] { "https://picsum.photos/seed/vitrine-4/800/1000" },
                 new[] { new ProductAttribute("Tipo", "Suculenta"), new ProductAttribute("Maceta", "Cerámica") })
