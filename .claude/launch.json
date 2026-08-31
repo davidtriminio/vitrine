@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "vitrine-frontend",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["-C", "frontend", "exec", "ng", "serve", "--port", "4200"],
+      "port": 4200
+    }
+  ]
+}
