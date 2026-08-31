@@ -544,3 +544,6 @@ design.md
 *.db
 *.db-shm
 *.db-wal
+
+# Uploaded media (local disk storage)
+backend/src/Vitrine.Api/wwwroot/

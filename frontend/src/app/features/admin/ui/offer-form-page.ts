@@ -7,6 +7,7 @@ import { ButtonComponent } from '../../../shared/ui/button/button';
 import { Category } from '../../catalog/domain/catalog-models';
 import { AdminRepository } from '../infrastructure/admin-repository';
 import { OfferWriteRequest } from '../infrastructure/offer-admin';
+import { ImageInputComponent } from './image-input';
 
 interface TargetOption {
   id: string;
@@ -57,7 +58,7 @@ function defaultModel(): OfferFormModel {
 @Component({
   selector: 'app-offer-form-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, FormField, ButtonComponent, TPipe],
+  imports: [RouterLink, FormField, ButtonComponent, ImageInputComponent, TPipe],
   template: `
     <div class="mx-auto max-w-2xl px-4 py-6">
       <h1 class="text-2xl font-bold text-fg">
@@ -138,12 +139,11 @@ function defaultModel(): OfferFormModel {
                 </label>
                 <input id="bannerColor" placeholder="#f099be" [formField]="offerForm.bannerBackgroundColor" [class]="inputClass" />
               </div>
-              <div>
-                <label for="bannerImage" class="text-sm font-medium text-fg">
-                  {{ 'admin.bannerImage' | t }}
-                </label>
-                <input id="bannerImage" [formField]="offerForm.bannerImageUrl" [class]="inputClass" />
-              </div>
+              <app-image-input
+                [label]="'admin.bannerImage' | t"
+                [value]="offerForm.bannerImageUrl().value()"
+                (valueChange)="setBannerImage($event)"
+              />
             </div>
           </div>
         </fieldset>
@@ -229,6 +229,10 @@ export class OfferFormPage implements OnInit {
         error: (error: AppError) => this.errorMessage.set(error.title),
       });
     }
+  }
+
+  setBannerImage(url: string): void {
+    this.model.update((current) => ({ ...current, bannerImageUrl: url }));
   }
 
   submit(): void {

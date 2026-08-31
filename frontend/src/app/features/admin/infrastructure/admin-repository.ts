@@ -92,6 +92,14 @@ export class AdminRepository {
     return this.http.delete<void>(`${this.base}/offers/${id}`);
   }
 
+  uploadImage(file: File): Observable<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http
+      .post<{ url: string }>(`${this.base}/uploads/image`, formData)
+      .pipe(map((response) => response.url));
+  }
+
   getSettings(): Observable<BrandSettings> {
     return this.http.get<BrandSettingsDto>(`${this.base}/settings`).pipe(map(mapBrandSettings));
   }

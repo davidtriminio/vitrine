@@ -11,6 +11,7 @@ import { ButtonComponent } from '../../../shared/ui/button/button';
 import { AdminRepository } from '../infrastructure/admin-repository';
 import { BrandSettingsUpdate } from '../infrastructure/settings-admin';
 import { AdminNavComponent } from './admin-nav';
+import { ImageInputComponent } from './image-input';
 
 interface SettingsFormModel {
   brandName: string;
@@ -40,7 +41,7 @@ const THEME_FIELDS: string[] = [
 @Component({
   selector: 'app-settings-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormField, ButtonComponent, AdminNavComponent, TPipe],
+  imports: [FormField, ButtonComponent, AdminNavComponent, ImageInputComponent, TPipe],
   template: `
     <div class="mx-auto max-w-3xl px-4 py-6">
       <app-admin-nav />
@@ -59,10 +60,11 @@ const THEME_FIELDS: string[] = [
             <input id="whatsapp" inputmode="numeric" [formField]="settingsForm.whatsappNumber" [class]="inputClass" />
             <p class="mt-1 text-xs text-fg-muted">{{ 'admin.whatsappHint' | t }}</p>
           </div>
-          <div>
-            <label for="logoUrl" class="text-sm font-medium text-fg">{{ 'admin.logoUrl' | t }}</label>
-            <input id="logoUrl" [formField]="settingsForm.logoUrl" [class]="inputClass" />
-          </div>
+          <app-image-input
+            [label]="'admin.logoUrl' | t"
+            [value]="settingsForm.logoUrl().value()"
+            (valueChange)="setLogo($event)"
+          />
         </div>
       </section>
 
@@ -78,10 +80,11 @@ const THEME_FIELDS: string[] = [
             <label for="heroSubtitle" class="text-sm font-medium text-fg">{{ 'admin.heroSubtitle' | t }}</label>
             <input id="heroSubtitle" [formField]="settingsForm.heroSubtitle" [class]="inputClass" />
           </div>
-          <div>
-            <label for="heroImage" class="text-sm font-medium text-fg">{{ 'admin.heroImageUrl' | t }}</label>
-            <input id="heroImage" [formField]="settingsForm.heroImageUrl" [class]="inputClass" />
-          </div>
+          <app-image-input
+            [label]="'admin.heroImageUrl' | t"
+            [value]="settingsForm.heroImageUrl().value()"
+            (valueChange)="setHeroImage($event)"
+          />
         </div>
       </section>
 
@@ -189,6 +192,14 @@ export class SettingsPage implements OnInit {
   restoreDefaults(): void {
     this.themeTokens.set({ ...DEFAULT_THEME });
     this.theme.resetToDefaults();
+  }
+
+  setLogo(url: string): void {
+    this.model.update((current) => ({ ...current, logoUrl: url }));
+  }
+
+  setHeroImage(url: string): void {
+    this.model.update((current) => ({ ...current, heroImageUrl: url }));
   }
 
   submit(): void {
