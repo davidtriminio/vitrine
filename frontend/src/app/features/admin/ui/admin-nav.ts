@@ -27,6 +27,13 @@ import { TPipe } from '../../../core/i18n/t-pipe';
         >
           {{ 'admin.offers' | t }}
         </a>
+        <a
+          routerLink="/admin/configuracion"
+          routerLinkActive="bg-primary text-primary-fg"
+          class="rounded-md px-3 py-1.5 text-sm font-medium text-fg-muted hover:text-fg"
+        >
+          {{ 'admin.settings' | t }}
+        </a>
       </div>
       <button
         type="button"

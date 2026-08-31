@@ -80,6 +80,33 @@ export const es = {
   'admin.bannerColor': 'Color de fondo (hex)',
   'admin.bannerImage': 'Imagen del banner (URL)',
   'admin.offerDates': 'Vigencia',
+
+  'admin.settings': 'Configuración',
+  'admin.settingsBrand': 'Marca',
+  'admin.settingsHero': 'Banner principal',
+  'admin.settingsTheme': 'Colores del tema',
+  'admin.brandName': 'Nombre de la marca',
+  'admin.whatsappNumber': 'Número de WhatsApp',
+  'admin.whatsappHint': 'Solo dígitos con código de país (ej. 50499998888).',
+  'admin.logoUrl': 'Logo (URL)',
+  'admin.heroTitle': 'Título',
+  'admin.heroSubtitle': 'Subtítulo',
+  'admin.heroImageUrl': 'Imagen (URL)',
+  'admin.restoreDefaults': 'Restaurar colores por defecto',
+  'admin.settingsSaved': 'Configuración guardada.',
+
+  'theme.surface': 'Fondo',
+  'theme.surface-2': 'Fondo elevado',
+  'theme.muted': 'Bordes / apagado',
+  'theme.fg': 'Texto',
+  'theme.fg-muted': 'Texto secundario',
+  'theme.primary': 'Primario',
+  'theme.primary-strong': 'Primario fuerte',
+  'theme.primary-fg': 'Texto sobre primario',
+  'theme.accent': 'Acento',
+  'theme.accent-strong': 'Acento fuerte',
+  'theme.accent-fg': 'Texto sobre acento',
+  'theme.ring': 'Foco',
 } as const;
 
 export type TranslationKey = keyof typeof es;
