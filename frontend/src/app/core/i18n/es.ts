@@ -94,6 +94,12 @@ export const es = {
   'admin.heroImageUrl': 'Imagen (URL)',
   'admin.restoreDefaults': 'Restaurar colores por defecto',
   'admin.settingsSaved': 'Configuración guardada.',
+  'admin.imageDrop': 'Arrastrá una imagen o hacé clic para subir',
+  'admin.imageUploading': 'Subiendo…',
+  'admin.imageOrUrl': 'o pegá una URL',
+  'admin.imageError': 'No se pudo subir la imagen.',
+  'admin.imageRemove': 'Quitar',
+  'admin.image': 'Imagen',
 
   'theme.surface': 'Fondo',
   'theme.surface-2': 'Fondo elevado',
