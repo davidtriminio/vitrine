@@ -137,7 +137,15 @@ function defaultModel(): OfferFormModel {
                 <label for="bannerColor" class="text-sm font-medium text-fg">
                   {{ 'admin.bannerColor' | t }}
                 </label>
-                <input id="bannerColor" placeholder="#f099be" [formField]="offerForm.bannerBackgroundColor" [class]="inputClass" />
+                <div class="mt-1 flex items-center gap-2">
+                  <input
+                    type="color"
+                    class="h-10 w-12 shrink-0 cursor-pointer rounded border border-muted bg-transparent"
+                    [value]="offerForm.bannerBackgroundColor().value() || '#f099be'"
+                    (input)="setBannerColor($event)"
+                  />
+                  <input id="bannerColor" placeholder="#f099be" [formField]="offerForm.bannerBackgroundColor" [class]="inputClass" />
+                </div>
               </div>
               <app-image-input
                 [label]="'admin.bannerImage' | t"
@@ -233,6 +241,11 @@ export class OfferFormPage implements OnInit {
 
   setBannerImage(url: string): void {
     this.model.update((current) => ({ ...current, bannerImageUrl: url }));
+  }
+
+  setBannerColor(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.model.update((current) => ({ ...current, bannerBackgroundColor: value }));
   }
 
   submit(): void {
