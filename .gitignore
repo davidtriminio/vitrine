@@ -1,0 +1,534 @@
+﻿# ============================================================
+
+# .NET / C#
+
+# ============================================================
+
+# Build output
+
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio / .NET generated files
+
+.vs/
+*.user
+*.userosscache
+*.suo
+*.userprefs
+*.rsuser
+
+# Visual Studio Code
+
+
+ .vscode/
+
+# Visual Studio
+
+*.sln.docstates
+
+# MSBuild generated files
+
+*.nupkg
+*.snupkg
+*.pdb
+*.dll
+*.exe
+*.cache
+*.ilk
+*.obj
+*.bin
+*.tmp
+
+# Code coverage
+
+coverage/
+TestResults/
+*.coverage
+*.coveragexml
+*.trx
+
+# NuGet
+
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+
+# NuGet credentials / local configuration
+
+nuget.config.local
+NuGet.Config.local
+
+# Generated documentation
+
+[Dd]ocuments/
+*.xml
+
+# ASP.NET generated files
+
+wwwroot/dist/
+wwwroot/build/
+
+# Publish output
+
+publish/
+Publish/
+artifacts/
+artifacts-local/
+
+# EF Core migrations/build artifacts
+
+# ============================================================
+
+# ASP.NET CORE
+
+# ============================================================
+
+# Local configuration / secrets
+
+appsettings.Local.json
+appsettings.local.json
+appsettings.Development.local.json
+appsettings.Staging.local.json
+appsettings.Production.local.json
+
+# User secrets
+
+secrets.json
+secrets.*.json
+
+# Development certificates
+
+*.pfx
+*.p12
+*.cer
+
+# HTTPS development certificate
+
+aspnetapp.pfx
+
+# Local database files
+
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# ============================================================
+
+# ANGULAR / NODE.JS
+
+# ============================================================
+
+# Dependencies
+
+node_modules/
+
+# Angular build output
+
+dist/
+.angular/
+out-tsc/
+
+# Angular cache
+
+.angular/cache/
+
+# npm
+
+.npm/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# npm package lock backups
+
+package-lock.json.backup
+package-lock.json.old
+
+# Runtime logs
+
+logs/
+*.log
+
+# Angular environment files containing local secrets
+
+src/environments/environment.local.ts
+src/environments/environment.*.local.ts
+
+# Angular generated files
+
+*.ngfactory.ts
+*.ngstyle.ts
+*.ngsummary.json
+
+# TypeScript build information
+
+*.tsbuildinfo
+
+# ============================================================
+
+# FRONTEND TESTING
+
+# ============================================================
+
+# Karma
+
+coverage/
+
+# Jest
+
+.jest/
+jest-coverage/
+
+# Playwright
+
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Cypress
+
+cypress/screenshots/
+cypress/videos/
+cypress/downloads/
+
+# ============================================================
+
+# ENVIRONMENT VARIABLES / SECRETS
+
+# ============================================================
+
+.env
+.env.*
+!.env.example
+!.env.template
+!.env.sample
+
+# Angular local environments
+
+environment.local.ts
+environment.*.local.ts
+
+# Azure / cloud credentials
+
+.azure/
+.azure-dev/
+
+# Generic credentials
+
+credentials.json
+credentials.local.json
+
+# ============================================================
+
+# JETBRAINS
+
+# IntelliJ IDEA / Rider / WebStorm / ReSharper
+
+# ============================================================
+
+# JetBrains project configuration
+
+.idea/
+
+# JetBrains user-specific files
+
+*.iws
+
+# ReSharper
+
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# JetBrains Rider
+
+.rider/
+
+# JetBrains Fleet
+
+.fleet/
+
+# ============================================================
+
+# INTELLIJ / JAVA (por si el proyecto usa IDEA)
+
+# ============================================================
+
+# Compiled Java
+
+*.class
+
+# Java build
+
+target/
+
+# Gradle
+
+.gradle/
+build/
+
+# Maven
+
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+
+# ============================================================
+
+# VS CODE
+
+# ============================================================
+
+# Workspace storage
+
+.history/
+
+# Local VS Code extensions
+
+.vscode-test/
+
+# VS Code temporary files
+
+*.code-workspace
+
+# ============================================================
+
+# OS
+
+# ============================================================
+
+# Windows
+
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+
+# macOS
+
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# macOS folder metadata
+
+._*
+
+# Linux
+
+*~
+
+# ============================================================
+
+# EDITORS / TEMPORARY FILES
+
+# ============================================================
+
+*.swp
+*.swo
+*.swn
+*.bak
+*.orig
+*.rej
+*.tmp
+*.temp
+
+# Vim
+
+.vimrc.local
+
+# Emacs
+
+*~
+#*#
+
+# ============================================================
+
+# DOCKER
+
+# ============================================================
+
+# Local Docker overrides
+
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Docker environment
+
+.env.docker
+.env.docker.local
+
+# ============================================================
+
+# DATABASE / LOCAL DEVELOPMENT
+
+# ============================================================
+
+# Local SQL Server / SQLite / PostgreSQL dumps
+
+*.mdf
+*.ldf
+*.ndf
+*.bak
+*.dump
+
+# Local database volumes
+
+.docker-data/
+docker-data/
+db-data/
+
+# ============================================================
+
+# LOGS
+
+# ============================================================
+
+*.log
+logs/
+log/
+Log/
+
+# ASP.NET logs
+
+App_Data/logs/
+
+# ============================================================
+
+# TEMPORARY / CACHE
+
+# ============================================================
+
+.tmp/
+temp/
+tmp/
+.cache/
+.cache-loader/
+
+# Angular / webpack
+
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# ============================================================
+
+# PACKAGE MANAGERS
+
+# ============================================================
+
+# npm
+
+.npm/
+node_modules/
+
+# Yarn
+
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+# pnpm
+
+.pnpm-store/
+
+# ============================================================
+
+# API / SWAGGER GENERATED FILES
+
+# ============================================================
+
+# generated/
+
+# openapi-generated/
+
+# swagger-generated/
+
+# ============================================================
+
+# LOCAL TOOLS / SCRIPTS
+
+# ============================================================
+
+.tools/
+.local/
+.local-tools/
+
+# ============================================================
+
+# CI/CD LOCAL
+
+# ============================================================
+
+# Local GitHub Actions artifacts
+
+.github/local/
+
+# ============================================================
+
+# BACKUPS
+
+# ============================================================
+
+*.orig
+*.backup
+*.old
+*.save
+
+# ============================================================
+
+# GENERATED FILES
+
+# ============================================================
+
+generated/
+Generated/
+
+# ============================================================
+
+# CERTIFICADOS / KEYS
+
+# ============================================================
+
+*.key
+*.pem
+*.crt
+
+# IMPORTANTE:
+
+# Si el repositorio NECESITA certificados públicos específicos,
+
+# puedes hacer excepciones con !archivo.crt
+
+# ============================================================
+
+# LOCAL DEVELOPMENT
+
+# ============================================================
+
+*.local
+*.local.json
+*.local.ts
+
+# ============================================================
+
+# OPTIONAL: VISUAL STUDIO CODE LOCAL DATA
+
+# ============================================================
+
+.vscode/settings.json
