@@ -11,7 +11,9 @@ import {
   mapPagedProducts,
   mapProduct,
 } from '../../catalog/infrastructure/catalog-dtos';
+import { BrandSettings, BrandSettingsDto, mapBrandSettings } from '../../../core/settings/brand-settings';
 import { OfferAdmin, OfferWriteRequest, mapOfferAdmin } from './offer-admin';
+import { BrandSettingsUpdate } from './settings-admin';
 
 export interface ProductWriteRequest {
   name: string;
@@ -88,5 +90,15 @@ export class AdminRepository {
 
   deleteOffer(id: string): Observable<void> {
     return this.http.delete<void>(`${this.base}/offers/${id}`);
+  }
+
+  getSettings(): Observable<BrandSettings> {
+    return this.http.get<BrandSettingsDto>(`${this.base}/settings`).pipe(map(mapBrandSettings));
+  }
+
+  updateSettings(request: BrandSettingsUpdate): Observable<BrandSettings> {
+    return this.http
+      .put<BrandSettingsDto>(`${this.base}/settings`, request)
+      .pipe(map(mapBrandSettings));
   }
 }

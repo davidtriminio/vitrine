@@ -57,5 +57,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/admin/ui/offer-form-page').then((m) => m.OfferFormPage),
   },
+  {
+    path: 'admin/configuracion',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/admin/ui/settings-page').then((m) => m.SettingsPage),
+  },
   { path: '**', redirectTo: '' },
 ];
