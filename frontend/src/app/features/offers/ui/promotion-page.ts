@@ -20,7 +20,7 @@ import { OfferBannerComponent } from './offer-banner';
     <div class="relative min-h-[calc(100vh-8rem)]">
       @if (backgroundImage(); as background) {
         <div
-          class="pointer-events-none absolute inset-0 bg-repeat"
+          class="pointer-events-none absolute inset-0 bg-no-repeat bg-cover"
           [style.background-image]="background"
           [style.opacity]="backgroundOpacity()"
           aria-hidden="true"
