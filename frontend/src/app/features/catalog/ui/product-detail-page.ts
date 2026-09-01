@@ -58,6 +58,12 @@ import { WhatsappService } from '../application/whatsapp-service';
           <div>
             <p class="text-sm text-fg-muted">{{ p.categoryName }}</p>
             <h1 class="mt-1 text-2xl font-bold text-fg sm:text-3xl">{{ p.name }}</h1>
+            <!-- Reference number: the primary identifier for buyer and seller. -->
+            <span
+              class="mt-2 inline-flex items-center rounded-lg bg-sku px-3 py-1 text-sm font-bold tabular-nums tracking-wide text-sku-fg shadow-sm"
+            >
+              {{ 'product.reference' | t: { sku: p.sku } }}
+            </span>
 
             <div class="mt-3 flex items-center gap-3">
               <span class="text-2xl font-bold text-fg">{{ p.price.finalPrice | money }}</span>
