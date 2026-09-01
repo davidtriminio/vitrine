@@ -148,7 +148,10 @@ public sealed class DatabaseSeeder
                 bannerTitle: "¡Primavera en flor!",
                 bannerSubtitle: "15% de descuento en ramos y arreglos",
                 bannerBackgroundColor: "#f099be",
-                bannerImageUrl: LoremFlickr(1200, 400, "spring,flowers", lockId: 200));
+                bannerImageUrl: LoremFlickr(1200, 400, "spring,flowers", lockId: 200),
+                // A small image tiled as a translucent pattern behind the detail page.
+                detailBackgroundImageUrl: LoremFlickr(160, 160, "flower,petals", lockId: 300),
+                detailBackgroundImageOpacity: 0.12);
 
             // Product-scoped ("ramos concretos"): a stronger discount on two specific bouquets.
             var bouquetDeal = new Offer(
@@ -165,7 +168,9 @@ public sealed class DatabaseSeeder
                 bannerTitle: "Rosas de la semana",
                 bannerSubtitle: "L 200 de descuento en ramos seleccionados",
                 bannerBackgroundColor: "#c85688",
-                bannerImageUrl: LoremFlickr(1200, 400, "roses,bouquet", lockId: 201));
+                bannerImageUrl: LoremFlickr(1200, 400, "roses,bouquet", lockId: 201),
+                detailBackgroundImageUrl: LoremFlickr(160, 160, "roses,pattern", lockId: 301),
+                detailBackgroundImageOpacity: 0.12);
 
             await _db.Offers.AddRangeAsync(new[] { seasonal, bouquetDeal }, ct);
         }

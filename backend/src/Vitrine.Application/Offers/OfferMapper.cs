@@ -18,7 +18,9 @@ public static class OfferMapper
         offer.BannerTitle,
         offer.BannerSubtitle,
         offer.BannerBackgroundColor,
-        offer.BannerImageUrl);
+        offer.BannerImageUrl,
+        offer.DetailBackgroundImageUrl,
+        offer.DetailBackgroundImageOpacity);
 
     public static ActiveOfferBannerResponse ToBanner(Offer offer) => new(
         offer.Id,
@@ -27,5 +29,7 @@ public static class OfferMapper
         offer.BannerTitle,
         offer.BannerSubtitle,
         offer.BannerBackgroundColor,
-        offer.BannerImageUrl);
+        offer.BannerImageUrl,
+        offer.DetailBackgroundImageUrl,
+        offer.DetailBackgroundImageOpacity);
 }

@@ -128,6 +128,8 @@ public sealed class VitrineDbContext : DbContext
             entity.Property(o => o.BannerSubtitle).HasMaxLength(300);
             entity.Property(o => o.BannerBackgroundColor).HasMaxLength(64);
             entity.Property(o => o.BannerImageUrl).HasMaxLength(2048);
+            entity.Property(o => o.DetailBackgroundImageUrl).HasMaxLength(2048);
+            entity.Property(o => o.DetailBackgroundImageOpacity);
         });
 
         // ---- BrandSettings (singleton row) ----

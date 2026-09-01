@@ -46,7 +46,12 @@ export interface OfferBanner {
   bannerTitle: string | null;
   bannerSubtitle: string | null;
   bannerBackgroundColor: string | null;
+  /** Home banner image (rectangular, shown fully opaque). */
   bannerImageUrl: string | null;
+  /** Separate image tiled as a translucent full-page background on the detail page. */
+  detailBackgroundImageUrl: string | null;
+  /** Opacity (0..1) for the tiled detail background. Null = fully opaque. */
+  detailBackgroundImageOpacity: number | null;
 }
 
 export interface Paged<T> {

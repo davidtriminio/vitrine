@@ -48,6 +48,8 @@ export interface OfferBannerDto {
   bannerSubtitle: string | null;
   bannerBackgroundColor: string | null;
   bannerImageUrl: string | null;
+  detailBackgroundImageUrl: string | null;
+  detailBackgroundImageOpacity: number | null;
 }
 
 export function mapProduct(dto: ProductDto): Product {
@@ -95,5 +97,7 @@ export function mapOfferBanner(dto: OfferBannerDto): OfferBanner {
     bannerSubtitle: dto.bannerSubtitle,
     bannerBackgroundColor: dto.bannerBackgroundColor,
     bannerImageUrl: dto.bannerImageUrl,
+    detailBackgroundImageUrl: dto.detailBackgroundImageUrl,
+    detailBackgroundImageOpacity: dto.detailBackgroundImageOpacity,
   };
 }

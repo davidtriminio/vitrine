@@ -26,6 +26,8 @@ export const es = {
   'product.contactWhatsapp': 'Pedir por WhatsApp',
   'product.messageLabel': 'Mensaje personalizado',
   'product.messagePlaceholder': 'Escribí un mensaje para tu pedido…',
+  'product.share': 'Compartir',
+  'product.shareCopied': '¡Enlace copiado!',
 
   'offer.discountPercent': '{value}% de descuento',
   'offer.discountAmount': 'L {value} de descuento',
@@ -96,7 +98,11 @@ export const es = {
   'admin.bannerTitle': 'Título del banner',
   'admin.bannerSubtitle': 'Subtítulo del banner',
   'admin.bannerColor': 'Color de fondo (hex)',
-  'admin.bannerImage': 'Imagen del banner (URL)',
+  'admin.bannerImage': 'Imagen del banner (inicio)',
+  'admin.detailBackgroundImage': 'Imagen de fondo (detalle)',
+  'admin.detailBackgroundOpacity': 'Opacidad del fondo',
+  'admin.detailBackgroundHint':
+    'Se repite en mosaico como fondo translúcido de la página de la oferta. Es distinta a la imagen del banner del inicio.',
   'admin.offerDates': 'Vigencia',
 
   'admin.settings': 'Configuración',

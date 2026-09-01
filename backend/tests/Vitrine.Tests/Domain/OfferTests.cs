@@ -64,4 +64,26 @@ public sealed class OfferTests
         offer.IsActiveAt(now.AddDays(2)).Should().BeFalse();
         offer.IsActiveAt(now.AddDays(-2)).Should().BeFalse();
     }
+
+    [Theory]
+    [InlineData(1.5, 1.0)]
+    [InlineData(-0.2, 0.0)]
+    [InlineData(0.4, 0.4)]
+    public void DetailBackgroundImageOpacity_IsClampedToUnitRange(double input, double expected)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var offer = new Offer(Guid.NewGuid(), "Test", DiscountType.Percentage, 10m,
+            categoryIds: Array.Empty<Guid>(), productIds: new[] { Guid.NewGuid() },
+            now.AddDays(-1), now.AddDays(1),
+            detailBackgroundImageUrl: "/uploads/pattern.png",
+            detailBackgroundImageOpacity: input);
+
+        offer.DetailBackgroundImageOpacity.Should().Be(expected);
+    }
+
+    [Fact]
+    public void DetailBackgroundImageOpacity_NullStaysNull()
+    {
+        BuildOffer().DetailBackgroundImageOpacity.Should().BeNull();
+    }
 }

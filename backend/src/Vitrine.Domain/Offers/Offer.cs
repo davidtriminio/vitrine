@@ -40,7 +40,19 @@ public sealed class Offer
     public string? BannerTitle { get; private set; }
     public string? BannerSubtitle { get; private set; }
     public string? BannerBackgroundColor { get; private set; }
+
+    /// <summary>Home banner image (rectangular, shown fully opaque).</summary>
     public string? BannerImageUrl { get; private set; }
+
+    /// <summary>
+    /// A separate image used only on the offer detail page, tiled as a translucent
+    /// full-page background ("pattern"/mosaic). Deliberately distinct from the home
+    /// <see cref="BannerImageUrl"/> so the detail view feels like a special place.
+    /// </summary>
+    public string? DetailBackgroundImageUrl { get; private set; }
+
+    /// <summary>Opacity (0..1) for the tiled detail background; null means fully opaque.</summary>
+    public double? DetailBackgroundImageOpacity { get; private set; }
 
     // EF Core materialization constructor.
     private Offer()
@@ -62,13 +74,17 @@ public sealed class Offer
         string? bannerTitle = null,
         string? bannerSubtitle = null,
         string? bannerBackgroundColor = null,
-        string? bannerImageUrl = null)
+        string? bannerImageUrl = null,
+        string? detailBackgroundImageUrl = null,
+        double? detailBackgroundImageOpacity = null)
     {
         Id = id == Guid.Empty ? Guid.NewGuid() : id;
         Name = string.Empty;
         SetCore(name, discountType, value, categoryIds, productIds, startsAt, endsAt);
         IsActive = isActive;
-        SetPresentation(iconName, bannerTitle, bannerSubtitle, bannerBackgroundColor, bannerImageUrl);
+        SetPresentation(
+            iconName, bannerTitle, bannerSubtitle, bannerBackgroundColor,
+            bannerImageUrl, detailBackgroundImageUrl, detailBackgroundImageOpacity);
     }
 
     public void Update(
@@ -84,11 +100,15 @@ public sealed class Offer
         string? bannerTitle,
         string? bannerSubtitle,
         string? bannerBackgroundColor,
-        string? bannerImageUrl)
+        string? bannerImageUrl,
+        string? detailBackgroundImageUrl,
+        double? detailBackgroundImageOpacity)
     {
         SetCore(name, discountType, value, categoryIds, productIds, startsAt, endsAt);
         IsActive = isActive;
-        SetPresentation(iconName, bannerTitle, bannerSubtitle, bannerBackgroundColor, bannerImageUrl);
+        SetPresentation(
+            iconName, bannerTitle, bannerSubtitle, bannerBackgroundColor,
+            bannerImageUrl, detailBackgroundImageUrl, detailBackgroundImageOpacity);
     }
 
     /// <summary>True when the offer is enabled and <paramref name="now"/> falls within its window.</summary>
@@ -162,14 +182,22 @@ public sealed class Offer
         string? title,
         string? subtitle,
         string? backgroundColor,
-        string? imageUrl)
+        string? imageUrl,
+        string? detailBackgroundImageUrl,
+        double? detailBackgroundImageOpacity)
     {
         IconName = Clean(iconName);
         BannerTitle = Clean(title);
         BannerSubtitle = Clean(subtitle);
         BannerBackgroundColor = Clean(backgroundColor);
         BannerImageUrl = Clean(imageUrl);
+        DetailBackgroundImageUrl = Clean(detailBackgroundImageUrl);
+        DetailBackgroundImageOpacity = ClampOpacity(detailBackgroundImageOpacity);
     }
+
+    /// <summary>Keeps opacity within [0, 1]; null (fully opaque) passes through.</summary>
+    private static double? ClampOpacity(double? opacity) =>
+        opacity is null ? null : Math.Clamp(opacity.Value, 0d, 1d);
 
     private static List<Guid> Distinct(IEnumerable<Guid>? ids) =>
         (ids ?? Enumerable.Empty<Guid>()).Where(id => id != Guid.Empty).Distinct().ToList();
