@@ -15,7 +15,8 @@ public static class CatalogMapper
                 price.AppliedOffer.Id,
                 price.AppliedOffer.Name,
                 price.AppliedOffer.DiscountType.ToString(),
-                price.AppliedOffer.Value);
+                price.AppliedOffer.Value,
+                price.AppliedOffer.IconName);
 
         var priceDto = new PriceDto(
             EnumParsing.CurrencyCode(price.BasePrice.Currency),

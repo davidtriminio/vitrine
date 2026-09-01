@@ -92,18 +92,38 @@ public sealed class VitrineDbContext : DbContext
         });
 
         // ---- Offer ----
+        var guidListConverter = new ValueConverter<IReadOnlyList<Guid>, string>(
+            v => JsonSerializer.Serialize(v, jsonOptions),
+            v => JsonSerializer.Deserialize<List<Guid>>(v, jsonOptions) ?? new List<Guid>());
+        var guidListComparer = new ValueComparer<IReadOnlyList<Guid>>(
+            (a, b) => a!.SequenceEqual(b!),
+            v => v.Aggregate(0, (hash, item) => HashCode.Combine(hash, item.GetHashCode())),
+            v => v.ToList());
+
         modelBuilder.Entity<Offer>(entity =>
         {
             entity.HasKey(o => o.Id);
             entity.Property(o => o.Name).IsRequired().HasMaxLength(200);
             entity.Property(o => o.DiscountType).HasConversion<int>();
             entity.Property(o => o.Value).HasPrecision(18, 2);
-            entity.Property(o => o.Scope).HasConversion<int>();
-            entity.Property(o => o.TargetId).IsRequired();
             entity.Property(o => o.StartsAt).HasConversion(dateTimeOffsetConverter);
             entity.Property(o => o.EndsAt).HasConversion(dateTimeOffsetConverter);
             entity.Property(o => o.IsActive);
             entity.HasIndex(o => new { o.IsActive, o.StartsAt, o.EndsAt });
+
+            entity.Property(o => o.CategoryIds)
+                .HasField("_categoryIds")
+                .UsePropertyAccessMode(PropertyAccessMode.Field)
+                .HasConversion(guidListConverter, guidListComparer)
+                .HasColumnName("CategoryIds");
+
+            entity.Property(o => o.ProductIds)
+                .HasField("_productIds")
+                .UsePropertyAccessMode(PropertyAccessMode.Field)
+                .HasConversion(guidListConverter, guidListComparer)
+                .HasColumnName("ProductIds");
+
+            entity.Property(o => o.IconName).HasMaxLength(64);
             entity.Property(o => o.BannerTitle).HasMaxLength(200);
             entity.Property(o => o.BannerSubtitle).HasMaxLength(300);
             entity.Property(o => o.BannerBackgroundColor).HasMaxLength(64);
@@ -127,6 +147,7 @@ public sealed class VitrineDbContext : DbContext
             entity.Property(b => b.LogoUrl).HasMaxLength(2048);
             entity.Property(b => b.WhatsappNumber).IsRequired().HasMaxLength(32);
             entity.Property(b => b.DefaultLocale).IsRequired().HasMaxLength(8);
+            entity.Property(b => b.Vibe).IsRequired().HasMaxLength(40);
             entity.Property(b => b.HeroTitle).HasMaxLength(200);
             entity.Property(b => b.HeroSubtitle).HasMaxLength(300);
             entity.Property(b => b.HeroImageUrl).HasMaxLength(2048);

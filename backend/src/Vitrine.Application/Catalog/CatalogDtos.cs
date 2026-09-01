@@ -11,7 +11,7 @@ public sealed record PagedResponse<T>(
 public sealed record ProductAttributeDto(string Key, string Value);
 
 /// <summary>Summary of the offer applied to a price (null when there is no discount).</summary>
-public sealed record AppliedOfferDto(Guid Id, string Name, string Type, decimal Value);
+public sealed record AppliedOfferDto(Guid Id, string Name, string Type, decimal Value, string? IconName);
 
 /// <summary>Price block: list price plus the domain-calculated final price and savings.</summary>
 public sealed record PriceDto(

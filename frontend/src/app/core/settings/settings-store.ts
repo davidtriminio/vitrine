@@ -31,10 +31,12 @@ export class SettingsStore {
       this.brandSignal.set(brand);
       // Effective theme = frontend defaults + brand overrides (see default-theme.ts).
       this.theme.apply(brand.themeTokens);
+      this.theme.applyVibe(brand.vibe);
       this.translations.setLocale(brand.defaultLocale);
     } catch {
       // Storefront still renders with the default (florist) tokens if settings fail.
       this.theme.resetToDefaults();
+      this.theme.applyVibe('elegant');
     }
   }
 }

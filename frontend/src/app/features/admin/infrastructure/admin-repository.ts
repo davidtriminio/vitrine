@@ -15,6 +15,11 @@ import { BrandSettings, BrandSettingsDto, mapBrandSettings } from '../../../core
 import { OfferAdmin, OfferWriteRequest, mapOfferAdmin } from './offer-admin';
 import { BrandSettingsUpdate } from './settings-admin';
 
+export interface CategoryWriteRequest {
+  name: string;
+  slug: string;
+}
+
 export interface ProductWriteRequest {
   name: string;
   sku: string;
@@ -35,8 +40,11 @@ export class AdminRepository {
     return `${this.apiBaseUrl}/api/v1`;
   }
 
-  getProducts(page: number): Observable<Paged<Product>> {
-    const params = new HttpParams().set('page', page).set('pageSize', 50);
+  getProducts(page: number, search = '', pageSize = 50): Observable<Paged<Product>> {
+    let params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    if (search.trim().length > 0) {
+      params = params.set('search', search.trim());
+    }
     return this.http
       .get<PagedDto<ProductDto>>(`${this.base}/products/all`, { params })
       .pipe(map(mapPagedProducts));
@@ -56,6 +64,18 @@ export class AdminRepository {
     return this.http
       .get<CategoryDto[]>(`${this.base}/categories`)
       .pipe(map((dtos) => dtos.map(mapCategory)));
+  }
+
+  createCategory(request: CategoryWriteRequest): Observable<Category> {
+    return this.http.post<CategoryDto>(`${this.base}/categories`, request).pipe(map(mapCategory));
+  }
+
+  updateCategory(id: string, request: CategoryWriteRequest): Observable<Category> {
+    return this.http.put<CategoryDto>(`${this.base}/categories/${id}`, request).pipe(map(mapCategory));
+  }
+
+  deleteCategory(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/categories/${id}`);
   }
 
   createProduct(request: ProductWriteRequest): Observable<Product> {

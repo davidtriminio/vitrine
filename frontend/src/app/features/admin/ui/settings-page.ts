@@ -20,7 +20,11 @@ interface SettingsFormModel {
   heroTitle: string;
   heroSubtitle: string;
   heroImageUrl: string;
+  vibe: string;
 }
+
+// Available storefront animation "vibes" (see styles.css).
+const VIBES = ['elegant', 'playful', 'bold'] as const;
 
 // Display order for the editable theme tokens.
 const THEME_FIELDS: string[] = [
@@ -88,6 +92,23 @@ const THEME_FIELDS: string[] = [
         </div>
       </section>
 
+      <!-- Animation vibe -->
+      <section class="mt-6 rounded-lg border border-muted bg-surface p-4">
+        <h2 class="text-sm font-bold text-fg">{{ 'admin.settingsVibe' | t }}</h2>
+        <p class="mt-1 text-xs text-fg-muted">{{ 'admin.settingsVibeHint' | t }}</p>
+        <div class="mt-3 flex flex-wrap gap-2">
+          @for (vibe of vibes; track vibe) {
+            <button
+              type="button"
+              (click)="setVibe(vibe)"
+              [class]="vibeButtonClass(model().vibe === vibe)"
+            >
+              {{ vibeLabel(vibe) }}
+            </button>
+          }
+        </div>
+      </section>
+
       <!-- Theme colors -->
       <section class="mt-6 rounded-lg border border-muted bg-surface p-4">
         <div class="flex items-center justify-between">
@@ -136,6 +157,7 @@ export class SettingsPage implements OnInit {
   private readonly translations = inject(TranslationService);
 
   protected readonly themeFields = THEME_FIELDS;
+  protected readonly vibes = VIBES;
   protected readonly submitting = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly savedMessage = signal<string | null>(null);
@@ -144,13 +166,14 @@ export class SettingsPage implements OnInit {
 
   protected readonly themeTokens = signal<Record<string, string>>({ ...DEFAULT_THEME });
 
-  private readonly model = signal<SettingsFormModel>({
+  protected readonly model = signal<SettingsFormModel>({
     brandName: '',
     whatsappNumber: '',
     logoUrl: '',
     heroTitle: '',
     heroSubtitle: '',
     heroImageUrl: '',
+    vibe: 'elegant',
   });
 
   protected readonly settingsForm = form(this.model, (path) => {
@@ -169,6 +192,7 @@ export class SettingsPage implements OnInit {
           heroTitle: brand.hero.title ?? '',
           heroSubtitle: brand.hero.subtitle ?? '',
           heroImageUrl: brand.hero.imageUrl ?? '',
+          vibe: brand.vibe || 'elegant',
         });
         this.themeTokens.set(resolveTheme(brand.themeTokens));
       },
@@ -192,6 +216,22 @@ export class SettingsPage implements OnInit {
   restoreDefaults(): void {
     this.themeTokens.set({ ...DEFAULT_THEME });
     this.theme.resetToDefaults();
+  }
+
+  vibeLabel(vibe: string): string {
+    return this.translations.t(`admin.vibe.${vibe}` as TranslationKey);
+  }
+
+  vibeButtonClass(selected: boolean): string {
+    return [
+      'cursor-pointer rounded-md border px-3 py-1.5 text-sm font-medium',
+      selected ? 'border-primary-strong bg-primary/20 text-fg' : 'border-muted bg-surface-2 text-fg-muted hover:text-fg',
+    ].join(' ');
+  }
+
+  setVibe(vibe: string): void {
+    this.model.update((current) => ({ ...current, vibe }));
+    this.theme.applyVibe(vibe); // live preview across the app
   }
 
   setLogo(url: string): void {
@@ -221,6 +261,7 @@ export class SettingsPage implements OnInit {
       heroTitle: values.heroTitle.trim() || null,
       heroSubtitle: values.heroSubtitle.trim() || null,
       heroImageUrl: values.heroImageUrl.trim() || null,
+      vibe: values.vibe,
     };
 
     this.repository.updateSettings(request).subscribe({

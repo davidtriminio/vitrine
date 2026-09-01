@@ -54,6 +54,11 @@ namespace Vitrine.Infrastructure.Persistence.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("ThemeTokens");
 
+                    b.Property<string>("Vibe")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("WhatsappNumber")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -194,11 +199,20 @@ namespace Vitrine.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
+                    b.Property<string>("CategoryIds")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("CategoryIds");
+
                     b.Property<int>("DiscountType")
                         .HasColumnType("INTEGER");
 
                     b.Property<long>("EndsAt")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("IconName")
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("INTEGER");
@@ -208,14 +222,13 @@ namespace Vitrine.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Scope")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("ProductIds")
+                        .IsRequired()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("ProductIds");
 
                     b.Property<long>("StartsAt")
                         .HasColumnType("INTEGER");
-
-                    b.Property<Guid>("TargetId")
-                        .HasColumnType("TEXT");
 
                     b.Property<decimal>("Value")
                         .HasPrecision(18, 2)

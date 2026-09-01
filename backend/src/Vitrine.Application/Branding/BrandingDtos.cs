@@ -9,7 +9,8 @@ public sealed record BrandSettingsResponse(
     IReadOnlyDictionary<string, string> ThemeTokens,
     string? HeroTitle,
     string? HeroSubtitle,
-    string? HeroImageUrl);
+    string? HeroImageUrl,
+    string Vibe);
 
 public sealed record UpdateBrandSettingsRequest(
     string BrandName,
@@ -19,4 +20,5 @@ public sealed record UpdateBrandSettingsRequest(
     IReadOnlyDictionary<string, string> ThemeTokens,
     string? HeroTitle,
     string? HeroSubtitle,
-    string? HeroImageUrl);
+    string? HeroImageUrl,
+    string? Vibe);
