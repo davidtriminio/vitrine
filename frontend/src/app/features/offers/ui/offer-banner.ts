@@ -17,6 +17,7 @@ import { OfferIconComponent } from '../../../shared/ui/offer-icon/offer-icon';
       [style.background-color]="offer().bannerBackgroundColor || 'var(--color-primary)'"
     >
       @if (offer().bannerImageUrl) {
+        <!-- Home banner: the cover photo is shown fully opaque and crisp. -->
         <img
           [src]="offer().bannerImageUrl"
           alt=""

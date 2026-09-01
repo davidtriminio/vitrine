@@ -5,6 +5,7 @@ import {
   CatalogFilters,
   OfferBanner,
   Product,
+  ProductSort,
 } from '../domain/catalog-models';
 import { CatalogRepository } from '../infrastructure/catalog-repository';
 
@@ -12,6 +13,7 @@ const INITIAL_FILTERS: CatalogFilters = {
   search: '',
   categoryId: null,
   onlyOnOffer: false,
+  sort: 'IdAsc',
   page: 1,
 };
 
@@ -25,6 +27,7 @@ export class CatalogStore {
   private readonly categoriesSignal = signal<Category[]>([]);
   private readonly offersSignal = signal<OfferBanner[]>([]);
   private readonly totalPagesSignal = signal<number>(1);
+  private readonly totalItemsSignal = signal<number>(0);
   private readonly loadingSignal = signal<boolean>(false);
   private readonly errorSignal = signal<AppError | null>(null);
 
@@ -33,9 +36,16 @@ export class CatalogStore {
   readonly categories = this.categoriesSignal.asReadonly();
   readonly offers = this.offersSignal.asReadonly();
   readonly totalPages = this.totalPagesSignal.asReadonly();
+  readonly totalItems = this.totalItemsSignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
   readonly error = this.errorSignal.asReadonly();
   readonly isEmpty = computed(() => !this.loading() && this.products().length === 0);
+
+  /** True when any narrowing filter (search/category/only-offer) is active. */
+  readonly hasActiveFilters = computed(() => {
+    const f = this.filtersSignal();
+    return f.search.trim().length > 0 || f.categoryId !== null || f.onlyOnOffer;
+  });
 
   loadReferenceData(): void {
     this.repository.getCategories().subscribe({
@@ -56,6 +66,7 @@ export class CatalogStore {
       next: (paged) => {
         this.productsSignal.set(paged.items);
         this.totalPagesSignal.set(paged.totalPages);
+        this.totalItemsSignal.set(paged.totalItems);
         this.loadingSignal.set(false);
       },
       error: (error: AppError) => {
@@ -77,6 +88,23 @@ export class CatalogStore {
 
   toggleOnlyOffer(): void {
     this.filtersSignal.update((f) => ({ ...f, onlyOnOffer: !f.onlyOnOffer, page: 1 }));
+    this.loadProducts();
+  }
+
+  setSort(sort: ProductSort): void {
+    this.filtersSignal.update((f) => ({ ...f, sort, page: 1 }));
+    this.loadProducts();
+  }
+
+  /** Resets search, category and only-offer filters (keeps the chosen ordering). */
+  clearFilters(): void {
+    this.filtersSignal.update((f) => ({
+      ...f,
+      search: '',
+      categoryId: null,
+      onlyOnOffer: false,
+      page: 1,
+    }));
     this.loadProducts();
   }
 

@@ -5,6 +5,18 @@ using Vitrine.Domain.Offers;
 
 namespace Vitrine.Application.Abstractions;
 
+/// <summary>Ordering options for a product listing.</summary>
+public enum ProductSort
+{
+    /// <summary>By reference number (SKU), ascending — 001, 002, 003… (default).</summary>
+    IdAsc = 0,
+    Newest = 1,
+    Oldest = 2,
+    PriceAsc = 3,
+    PriceDesc = 4,
+    Name = 5
+}
+
 /// <summary>Filter/paging criteria for a product listing.</summary>
 public sealed record ProductQuery(
     int Page = 1,
@@ -13,7 +25,8 @@ public sealed record ProductQuery(
     string? Search = null,
     bool OnlyOnOffer = false,
     bool IncludeInactive = false,
-    Guid? OfferId = null)
+    Guid? OfferId = null,
+    ProductSort Sort = ProductSort.IdAsc)
 {
     public const int MaxPageSize = 100;
 
