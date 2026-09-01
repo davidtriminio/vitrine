@@ -62,9 +62,13 @@ export interface Paged<T> {
   totalPages: number;
 }
 
+/** Product ordering options (mirror of the API's ProductSort). */
+export type ProductSort = 'IdAsc' | 'Newest' | 'Oldest' | 'PriceAsc' | 'PriceDesc' | 'Name';
+
 export interface CatalogFilters {
   search: string;
   categoryId: string | null;
   onlyOnOffer: boolean;
+  sort: ProductSort;
   page: number;
 }
