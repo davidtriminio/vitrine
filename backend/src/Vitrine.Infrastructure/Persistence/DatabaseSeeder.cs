@@ -67,7 +67,8 @@ public sealed class DatabaseSeeder
             themeTokens: tokens,
             heroTitle: "Flores que hablan por vos",
             heroSubtitle: "Ramos y arreglos para cada ocasión",
-            heroImageUrl: "https://picsum.photos/seed/vitrine-hero/1200/500");
+            heroImageUrl: LoremFlickr(1200, 500, "flowers,shop", lockId: 100),
+            vibe: "playful");
 
         await _db.BrandSettings.AddAsync(settings, ct);
     }
@@ -102,23 +103,27 @@ public sealed class DatabaseSeeder
         var arreglos = categories["arreglos"];
         var plantas = categories["plantas"];
 
+        // Individual "ramos" (products) referenced by product-scoped offers below.
+        var ramoPrimaveral = new Product(Guid.NewGuid(), "Ramo primaveral", "001",
+            "Ramo de temporada con rosas y flores silvestres.", ramos.Id, Money.Of(850m),
+            new[] { LoremFlickr(800, 1000, "bouquet,flowers", lockId: 1) },
+            new[] { new ProductAttribute("Color", "Rosa"), new ProductAttribute("Tamaño", "Mediano") });
+        var ramoRosasRojas = new Product(Guid.NewGuid(), "Ramo de rosas rojas", "002",
+            "Doce rosas rojas clásicas para expresar amor.", ramos.Id, Money.Of(1200m),
+            new[] { LoremFlickr(800, 1000, "roses,red", lockId: 2) },
+            new[] { new ProductAttribute("Color", "Rojo"), new ProductAttribute("Cantidad", "12 rosas") });
+
         var products = new List<Product>
         {
-            new(Guid.NewGuid(), "Ramo primaveral", "001",
-                "Ramo de temporada con rosas y flores silvestres.", ramos.Id, Money.Of(850m),
-                new[] { "https://picsum.photos/seed/vitrine-1/800/1000" },
-                new[] { new ProductAttribute("Color", "Rosa"), new ProductAttribute("Tamaño", "Mediano") }),
-            new(Guid.NewGuid(), "Ramo de rosas rojas", "002",
-                "Doce rosas rojas clásicas para expresar amor.", ramos.Id, Money.Of(1200m),
-                new[] { "https://picsum.photos/seed/vitrine-2/800/1000" },
-                new[] { new ProductAttribute("Color", "Rojo"), new ProductAttribute("Cantidad", "12 rosas") }),
+            ramoPrimaveral,
+            ramoRosasRojas,
             new(Guid.NewGuid(), "Arreglo en caja", "003",
                 "Arreglo floral en caja de regalo elegante.", arreglos.Id, Money.Of(1500m),
-                new[] { "https://picsum.photos/seed/vitrine-3/800/1000" },
+                new[] { LoremFlickr(800, 1000, "flowers,box", lockId: 3) },
                 new[] { new ProductAttribute("Estilo", "Caja"), new ProductAttribute("Ocasión", "Cumpleaños") }),
             new(Guid.NewGuid(), "Suculenta decorativa", "004",
                 "Planta suculenta en maceta de cerámica.", plantas.Id, Money.Of(450m),
-                new[] { "https://picsum.photos/seed/vitrine-4/800/1000" },
+                new[] { LoremFlickr(800, 1000, "succulent,plant", lockId: 4) },
                 new[] { new ProductAttribute("Tipo", "Suculenta"), new ProductAttribute("Maceta", "Cerámica") })
         };
 
@@ -127,24 +132,52 @@ public sealed class DatabaseSeeder
         if (!await _db.Offers.AnyAsync(ct))
         {
             var now = DateTimeOffset.UtcNow;
-            var offer = new Offer(
+
+            // Category-scoped: whole "Ramos" and "Arreglos" categories.
+            var seasonal = new Offer(
                 Guid.NewGuid(),
                 "Primavera en flor",
                 DiscountType.Percentage,
                 15m,
-                OfferScope.Category,
-                ramos.Id,
+                categoryIds: new[] { ramos.Id, arreglos.Id },
+                productIds: Array.Empty<Guid>(),
                 now.AddDays(-1),
                 now.AddDays(30),
                 isActive: true,
+                iconName: "flower",
                 bannerTitle: "¡Primavera en flor!",
-                bannerSubtitle: "15% de descuento en todos los ramos",
+                bannerSubtitle: "15% de descuento en ramos y arreglos",
                 bannerBackgroundColor: "#f099be",
-                bannerImageUrl: "https://picsum.photos/seed/vitrine-offer/1200/400");
+                bannerImageUrl: LoremFlickr(1200, 400, "spring,flowers", lockId: 200));
 
-            await _db.Offers.AddAsync(offer, ct);
+            // Product-scoped ("ramos concretos"): a stronger discount on two specific bouquets.
+            var bouquetDeal = new Offer(
+                Guid.NewGuid(),
+                "Rosas de la semana",
+                DiscountType.FixedAmount,
+                200m,
+                categoryIds: Array.Empty<Guid>(),
+                productIds: new[] { ramoPrimaveral.Id, ramoRosasRojas.Id },
+                now.AddDays(-1),
+                now.AddDays(14),
+                isActive: true,
+                iconName: "heart",
+                bannerTitle: "Rosas de la semana",
+                bannerSubtitle: "L 200 de descuento en ramos seleccionados",
+                bannerBackgroundColor: "#c85688",
+                bannerImageUrl: LoremFlickr(1200, 400, "roses,bouquet", lockId: 201));
+
+            await _db.Offers.AddRangeAsync(new[] { seasonal, bouquetDeal }, ct);
         }
     }
+
+    /// <summary>
+    /// Builds a LoremFlickr image URL. A per-record <paramref name="lockId"/> (as ?lock=)
+    /// keeps the image stable while forcing a different photo per record, so lists don't
+    /// show the same cached image repeated.
+    /// </summary>
+    private static string LoremFlickr(int width, int height, string keyword, int lockId) =>
+        $"https://loremflickr.com/{width}/{height}/{keyword}?lock={lockId}";
 
     private async Task SeedAdminUserAsync(CancellationToken ct)
     {

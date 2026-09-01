@@ -8,6 +8,7 @@ export interface BrandSettingsDto {
   heroTitle: string | null;
   heroSubtitle: string | null;
   heroImageUrl: string | null;
+  vibe: string;
 }
 
 /** Domain model used by the UI. */
@@ -17,6 +18,7 @@ export interface BrandSettings {
   whatsappNumber: string;
   defaultLocale: string;
   themeTokens: Record<string, string>;
+  vibe: string;
   hero: {
     title: string | null;
     subtitle: string | null;
@@ -31,6 +33,7 @@ export function mapBrandSettings(dto: BrandSettingsDto): BrandSettings {
     whatsappNumber: dto.whatsappNumber,
     defaultLocale: dto.defaultLocale,
     themeTokens: dto.themeTokens ?? {},
+    vibe: dto.vibe ?? 'elegant',
     hero: {
       title: dto.heroTitle,
       subtitle: dto.heroSubtitle,

@@ -4,11 +4,12 @@ export interface OfferAdmin {
   name: string;
   discountType: string;
   value: number;
-  scope: string;
-  targetId: string;
+  categoryIds: string[];
+  productIds: string[];
   startsAt: string;
   endsAt: string;
   isActive: boolean;
+  iconName: string | null;
   bannerTitle: string | null;
   bannerSubtitle: string | null;
   bannerBackgroundColor: string | null;
@@ -19,11 +20,12 @@ export interface OfferWriteRequest {
   name: string;
   discountType: string;
   value: number;
-  scope: string;
-  targetId: string;
+  categoryIds: string[];
+  productIds: string[];
   startsAt: string;
   endsAt: string;
   isActive: boolean;
+  iconName: string | null;
   bannerTitle: string | null;
   bannerSubtitle: string | null;
   bannerBackgroundColor: string | null;
@@ -31,5 +33,9 @@ export interface OfferWriteRequest {
 }
 
 export function mapOfferAdmin(dto: OfferAdmin): OfferAdmin {
-  return { ...dto };
+  return {
+    ...dto,
+    categoryIds: dto.categoryIds ?? [],
+    productIds: dto.productIds ?? [],
+  };
 }

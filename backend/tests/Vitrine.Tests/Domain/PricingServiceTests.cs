@@ -15,8 +15,15 @@ public sealed class PricingServiceTests
     private Product BuildProduct(Guid categoryId, decimal price = 1000m) =>
         new(Guid.NewGuid(), "P", "001", "d", categoryId, Money.Of(price));
 
-    private Offer BuildOffer(DiscountType type, decimal value, OfferScope scope, Guid targetId) =>
-        new(Guid.NewGuid(), "O", type, value, scope, targetId, _now.AddDays(-1), _now.AddDays(1));
+    private Offer CategoryOffer(DiscountType type, decimal value, Guid categoryId) =>
+        new(Guid.NewGuid(), "O", type, value,
+            categoryIds: new[] { categoryId }, productIds: Array.Empty<Guid>(),
+            _now.AddDays(-1), _now.AddDays(1));
+
+    private Offer ProductOffer(DiscountType type, decimal value, Guid productId) =>
+        new(Guid.NewGuid(), "O", type, value,
+            categoryIds: Array.Empty<Guid>(), productIds: new[] { productId },
+            _now.AddDays(-1), _now.AddDays(1));
 
     [Fact]
     public void NoOffers_ReturnsBasePrice()
@@ -33,7 +40,7 @@ public sealed class PricingServiceTests
     public void PercentageOffer_OnProduct_Applies()
     {
         var product = BuildProduct(Guid.NewGuid(), 1200m);
-        var offer = BuildOffer(DiscountType.Percentage, 15m, OfferScope.Product, product.Id);
+        var offer = ProductOffer(DiscountType.Percentage, 15m, product.Id);
 
         var result = _pricing.CalculatePrice(product, new[] { offer }, _now);
 
@@ -47,7 +54,7 @@ public sealed class PricingServiceTests
     {
         var categoryId = Guid.NewGuid();
         var product = BuildProduct(categoryId, 1000m);
-        var offer = BuildOffer(DiscountType.FixedAmount, 200m, OfferScope.Category, categoryId);
+        var offer = CategoryOffer(DiscountType.FixedAmount, 200m, categoryId);
 
         var result = _pricing.CalculatePrice(product, new[] { offer }, _now);
 
@@ -59,8 +66,8 @@ public sealed class PricingServiceTests
     {
         var categoryId = Guid.NewGuid();
         var product = BuildProduct(categoryId, 1000m);
-        var weak = BuildOffer(DiscountType.Percentage, 10m, OfferScope.Category, categoryId);
-        var strong = BuildOffer(DiscountType.Percentage, 30m, OfferScope.Category, categoryId);
+        var weak = CategoryOffer(DiscountType.Percentage, 10m, categoryId);
+        var strong = CategoryOffer(DiscountType.Percentage, 30m, categoryId);
 
         var result = _pricing.CalculatePrice(product, new[] { weak, strong }, _now);
 
@@ -74,21 +81,23 @@ public sealed class PricingServiceTests
     {
         var categoryId = Guid.NewGuid();
         var product = BuildProduct(categoryId, 1000m);
-        var categoryOffer = BuildOffer(DiscountType.Percentage, 20m, OfferScope.Category, categoryId);
-        var productOffer = BuildOffer(DiscountType.Percentage, 20m, OfferScope.Product, product.Id);
+        var categoryOffer = CategoryOffer(DiscountType.Percentage, 20m, categoryId);
+        var productOffer = ProductOffer(DiscountType.Percentage, 20m, product.Id);
 
         var result = _pricing.CalculatePrice(product, new[] { categoryOffer, productOffer }, _now);
 
         result.FinalPrice.Amount.Should().Be(800m);
-        result.AppliedOffer!.Scope.Should().Be(OfferScope.Product);
+        result.AppliedOffer.Should().Be(productOffer);
+        result.AppliedOffer!.AppliesDirectlyToProduct(product).Should().BeTrue();
     }
 
     [Fact]
     public void ExpiredOffer_IsIgnored()
     {
         var product = BuildProduct(Guid.NewGuid(), 1000m);
-        var expired = new Offer(Guid.NewGuid(), "old", DiscountType.Percentage, 50m, OfferScope.Product,
-            product.Id, _now.AddDays(-10), _now.AddDays(-5));
+        var expired = new Offer(Guid.NewGuid(), "old", DiscountType.Percentage, 50m,
+            categoryIds: Array.Empty<Guid>(), productIds: new[] { product.Id },
+            _now.AddDays(-10), _now.AddDays(-5));
 
         var result = _pricing.CalculatePrice(product, new[] { expired }, _now);
 

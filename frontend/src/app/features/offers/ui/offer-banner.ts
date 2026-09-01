@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { OfferBanner } from '../../catalog/domain/catalog-models';
+import { OfferIconComponent } from '../../../shared/ui/offer-icon/offer-icon';
 
 /**
  * Rectangular offer banner (landing style). Composes an optional cover photo with a
@@ -9,9 +10,10 @@ import { OfferBanner } from '../../catalog/domain/catalog-models';
 @Component({
   selector: 'app-offer-banner',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [OfferIconComponent],
   template: `
     <div
-      class="relative flex min-h-36 flex-col justify-center overflow-hidden rounded-lg"
+      class="vibe-banner relative flex min-h-36 flex-col justify-center overflow-hidden rounded-lg"
       [style.background-color]="offer().bannerBackgroundColor || 'var(--color-primary)'"
     >
       @if (offer().bannerImageUrl) {
@@ -24,9 +26,14 @@ import { OfferBanner } from '../../catalog/domain/catalog-models';
       }
 
       <div class="relative p-6 sm:p-8">
-        <p class="text-2xl font-bold sm:text-3xl" [class]="titleColor()">
-          {{ offer().bannerTitle }}
-        </p>
+        <div class="flex items-center gap-2" [class]="titleColor()">
+          @if (offer().iconName; as icon) {
+            <span class="vibe-banner-icon inline-flex"><app-offer-icon [name]="icon" [size]="28" /></span>
+          }
+          <p class="text-2xl font-bold sm:text-3xl">
+            {{ offer().bannerTitle }}
+          </p>
+        </div>
         @if (offer().bannerSubtitle) {
           <p class="mt-1 text-sm font-medium sm:text-base" [class]="subtitleColor()">
             {{ offer().bannerSubtitle }}

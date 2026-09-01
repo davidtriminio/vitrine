@@ -8,4 +8,5 @@ export interface BrandSettingsUpdate {
   heroTitle: string | null;
   heroSubtitle: string | null;
   heroImageUrl: string | null;
+  vibe: string;
 }

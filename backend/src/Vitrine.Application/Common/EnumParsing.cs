@@ -16,16 +16,6 @@ public static class EnumParsing
         throw new DomainException($"Unknown discount type '{value}'.");
     }
 
-    public static OfferScope ParseOfferScope(string value)
-    {
-        if (Enum.TryParse<OfferScope>(value, ignoreCase: true, out var parsed))
-        {
-            return parsed;
-        }
-
-        throw new DomainException($"Unknown offer scope '{value}'.");
-    }
-
     public static string CurrencyCode(Currency currency) => currency switch
     {
         Currency.Lps => "LPS",

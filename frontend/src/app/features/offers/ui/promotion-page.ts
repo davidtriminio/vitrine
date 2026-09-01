@@ -7,7 +7,7 @@ import { CatalogRepository } from '../../catalog/infrastructure/catalog-reposito
 import { ProductCardComponent } from '../../catalog/ui/product-card';
 import { OfferBannerComponent } from './offer-banner';
 
-/** Products that apply to a single promotion (offer). */
+/** Products that apply to a single promotion (offer), paged for large catalogs. */
 @Component({
   selector: 'app-promotion-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +42,30 @@ import { OfferBannerComponent } from './offer-banner';
               <app-product-card [product]="product" />
             }
           </div>
+
+          @if (totalPages() > 1) {
+            <div class="mt-8 flex items-center justify-center gap-4">
+              <button
+                type="button"
+                (click)="prev()"
+                [disabled]="page() === 1"
+                class="cursor-pointer rounded-md border border-muted px-4 py-2 text-sm text-fg hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {{ 'promotion.prev' | t }}
+              </button>
+              <span class="text-sm text-fg-muted">
+                {{ 'promotion.page' | t: { page: page(), total: totalPages() } }}
+              </span>
+              <button
+                type="button"
+                (click)="next()"
+                [disabled]="page() === totalPages()"
+                class="cursor-pointer rounded-md border border-muted px-4 py-2 text-sm text-fg hover:bg-surface-2 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {{ 'promotion.next' | t }}
+              </button>
+            </div>
+          }
         }
       </div>
     </div>
@@ -55,22 +79,47 @@ export class PromotionPage implements OnInit {
   protected readonly banner = signal<OfferBanner | null>(null);
   protected readonly products = signal<Product[]>([]);
   protected readonly loading = signal<boolean>(true);
+  protected readonly page = signal<number>(1);
+  protected readonly totalPages = signal<number>(1);
   protected readonly skeletons = Array.from({ length: 8 });
 
   ngOnInit(): void {
-    const id = this.offerId();
-
-    this.repository.getOfferBanner(id).subscribe({
+    this.repository.getOfferBanner(this.offerId()).subscribe({
       next: (banner) => this.banner.set(banner),
       error: () => this.banner.set(null),
     });
 
-    this.repository.getProductsByOffer(id, 1).subscribe({
+    this.load(1);
+  }
+
+  load(page: number): void {
+    this.loading.set(true);
+    this.repository.getProductsByOffer(this.offerId(), page).subscribe({
       next: (paged) => {
         this.products.set(paged.items);
+        this.page.set(paged.page);
+        this.totalPages.set(Math.max(1, paged.totalPages));
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  prev(): void {
+    if (this.page() > 1) {
+      this.load(this.page() - 1);
+      this.scrollToTop();
+    }
+  }
+
+  next(): void {
+    if (this.page() < this.totalPages()) {
+      this.load(this.page() + 1);
+      this.scrollToTop();
+    }
+  }
+
+  private scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }

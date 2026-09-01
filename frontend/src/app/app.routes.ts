@@ -40,6 +40,12 @@ export const routes: Routes = [
       import('./features/admin/ui/product-form-page').then((m) => m.ProductFormPage),
   },
   {
+    path: 'admin/categorias',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/admin/ui/admin-categories-page').then((m) => m.AdminCategoriesPage),
+  },
+  {
     path: 'admin/ofertas',
     canActivate: [authGuard],
     loadComponent: () =>

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Vitrine.Infrastructure.Persistence;
 
@@ -10,9 +11,11 @@ using Vitrine.Infrastructure.Persistence;
 namespace Vitrine.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(VitrineDbContext))]
-    partial class VitrineDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260831201029_OffersMultiTargetAndVibe")]
+    partial class OffersMultiTargetAndVibe
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.11");
