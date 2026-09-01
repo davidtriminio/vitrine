@@ -31,7 +31,8 @@ export class CatalogRepository {
     let params = new HttpParams()
       .set('page', filters.page)
       .set('pageSize', PAGE_SIZE)
-      .set('onlyOnOffer', filters.onlyOnOffer);
+      .set('onlyOnOffer', filters.onlyOnOffer)
+      .set('sort', filters.sort);
 
     if (filters.categoryId) {
       params = params.set('categoryId', filters.categoryId);

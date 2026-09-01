@@ -35,6 +35,15 @@ import { Product } from '../domain/catalog-models';
             </app-badge>
           </div>
         }
+
+        <!-- Reference number: the primary identifier for buyer and seller. -->
+        <div class="absolute right-3 top-3">
+          <span
+            class="inline-flex items-center rounded-md bg-sku px-2.5 py-1 text-xs font-bold tabular-nums tracking-wide text-sku-fg shadow-sm"
+          >
+            {{ 'product.reference' | t: { sku: product().sku } }}
+          </span>
+        </div>
       </div>
 
       <div class="flex flex-1 flex-col p-4">

@@ -32,6 +32,8 @@ interface OfferFormModel {
   bannerSubtitle: string;
   bannerBackgroundColor: string;
   bannerImageUrl: string;
+  detailBackgroundImageUrl: string;
+  detailBackgroundImageOpacity: number;
 }
 
 /** Converts an ISO instant to the value a datetime-local input expects. */
@@ -58,6 +60,8 @@ function defaultModel(): OfferFormModel {
     bannerSubtitle: '',
     bannerBackgroundColor: '',
     bannerImageUrl: '',
+    detailBackgroundImageUrl: '',
+    detailBackgroundImageOpacity: 15,
   };
 }
 
@@ -256,6 +260,40 @@ function defaultModel(): OfferFormModel {
                 (valueChange)="setBannerImage($event)"
               />
             </div>
+
+            <!-- Second image: distinct background for the offer detail page, tiled as a
+                 translucent pattern so the detail view feels different from the home. -->
+            <div class="rounded-md border border-dashed border-muted p-3">
+              <app-image-input
+                [label]="'admin.detailBackgroundImage' | t"
+                [value]="offerForm.detailBackgroundImageUrl().value()"
+                (valueChange)="setDetailBackgroundImage($event)"
+              />
+              <p class="mt-1 text-xs text-fg-muted">{{ 'admin.detailBackgroundHint' | t }}</p>
+
+              @if (model().detailBackgroundImageUrl.trim()) {
+                <div class="mt-3">
+                  <div class="flex items-center justify-between">
+                    <label for="detailBgOpacity" class="text-sm font-medium text-fg">
+                      {{ 'admin.detailBackgroundOpacity' | t }}
+                    </label>
+                    <span class="text-sm tabular-nums text-fg-muted">
+                      {{ model().detailBackgroundImageOpacity }}%
+                    </span>
+                  </div>
+                  <input
+                    id="detailBgOpacity"
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    class="mt-2 w-full cursor-pointer accent-primary-strong"
+                    [value]="model().detailBackgroundImageOpacity"
+                    (input)="setDetailBackgroundOpacity($event)"
+                  />
+                </div>
+              }
+            </div>
           </div>
         </fieldset>
 
@@ -338,6 +376,11 @@ export class OfferFormPage implements OnInit {
             bannerSubtitle: offer.bannerSubtitle ?? '',
             bannerBackgroundColor: offer.bannerBackgroundColor ?? '',
             bannerImageUrl: offer.bannerImageUrl ?? '',
+            detailBackgroundImageUrl: offer.detailBackgroundImageUrl ?? '',
+            detailBackgroundImageOpacity:
+              offer.detailBackgroundImageOpacity == null
+                ? 15
+                : Math.round(offer.detailBackgroundImageOpacity * 100),
           });
         },
         error: (error: AppError) => this.errorMessage.set(error.title),
@@ -410,6 +453,15 @@ export class OfferFormPage implements OnInit {
     this.model.update((current) => ({ ...current, bannerBackgroundColor: value }));
   }
 
+  setDetailBackgroundImage(url: string): void {
+    this.model.update((current) => ({ ...current, detailBackgroundImageUrl: url }));
+  }
+
+  setDetailBackgroundOpacity(event: Event): void {
+    const value = Number((event.target as HTMLInputElement).value);
+    this.model.update((current) => ({ ...current, detailBackgroundImageOpacity: value }));
+  }
+
   submit(): void {
     if (this.offerForm().invalid() || !this.hasTarget()) {
       return;
@@ -433,6 +485,11 @@ export class OfferFormPage implements OnInit {
       bannerSubtitle: values.bannerSubtitle.trim() || null,
       bannerBackgroundColor: values.bannerBackgroundColor.trim() || null,
       bannerImageUrl: values.bannerImageUrl.trim() || null,
+      detailBackgroundImageUrl: values.detailBackgroundImageUrl.trim() || null,
+      // Opacity only matters with a detail background; persist as a 0..1 fraction.
+      detailBackgroundImageOpacity: values.detailBackgroundImageUrl.trim()
+        ? values.detailBackgroundImageOpacity / 100
+        : null,
     };
 
     const editId = this.id();

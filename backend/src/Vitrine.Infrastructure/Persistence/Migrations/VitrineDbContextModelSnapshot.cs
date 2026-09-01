@@ -204,6 +204,13 @@ namespace Vitrine.Infrastructure.Persistence.Migrations
                         .HasColumnType("TEXT")
                         .HasColumnName("CategoryIds");
 
+                    b.Property<double?>("DetailBackgroundImageOpacity")
+                        .HasColumnType("REAL");
+
+                    b.Property<string>("DetailBackgroundImageUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("DiscountType")
                         .HasColumnType("INTEGER");
 

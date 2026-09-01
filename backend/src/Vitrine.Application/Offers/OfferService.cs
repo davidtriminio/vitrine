@@ -81,7 +81,9 @@ public sealed class OfferService : IOfferService
             request.BannerTitle,
             request.BannerSubtitle,
             request.BannerBackgroundColor,
-            request.BannerImageUrl);
+            request.BannerImageUrl,
+            request.DetailBackgroundImageUrl,
+            request.DetailBackgroundImageOpacity);
 
         await _offers.AddAsync(offer, ct);
         await _unitOfWork.SaveChangesAsync(ct);
@@ -107,7 +109,9 @@ public sealed class OfferService : IOfferService
             request.BannerTitle,
             request.BannerSubtitle,
             request.BannerBackgroundColor,
-            request.BannerImageUrl);
+            request.BannerImageUrl,
+            request.DetailBackgroundImageUrl,
+            request.DetailBackgroundImageOpacity);
 
         _offers.Update(offer);
         await _unitOfWork.SaveChangesAsync(ct);
