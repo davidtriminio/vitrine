@@ -14,7 +14,9 @@ public sealed record OfferResponse(
     string? BannerTitle,
     string? BannerSubtitle,
     string? BannerBackgroundColor,
-    string? BannerImageUrl);
+    string? BannerImageUrl,
+    string? DetailBackgroundImageUrl,
+    double? DetailBackgroundImageOpacity);
 
 /// <summary>Trimmed offer shape for public banners (active offers only).</summary>
 public sealed record ActiveOfferBannerResponse(
@@ -24,7 +26,9 @@ public sealed record ActiveOfferBannerResponse(
     string? BannerTitle,
     string? BannerSubtitle,
     string? BannerBackgroundColor,
-    string? BannerImageUrl);
+    string? BannerImageUrl,
+    string? DetailBackgroundImageUrl,
+    double? DetailBackgroundImageOpacity);
 
 public sealed record CreateOfferRequest(
     string Name,
@@ -39,7 +43,9 @@ public sealed record CreateOfferRequest(
     string? BannerTitle = null,
     string? BannerSubtitle = null,
     string? BannerBackgroundColor = null,
-    string? BannerImageUrl = null);
+    string? BannerImageUrl = null,
+    string? DetailBackgroundImageUrl = null,
+    double? DetailBackgroundImageOpacity = null);
 
 public sealed record UpdateOfferRequest(
     string Name,
@@ -54,4 +60,6 @@ public sealed record UpdateOfferRequest(
     string? BannerTitle,
     string? BannerSubtitle,
     string? BannerBackgroundColor,
-    string? BannerImageUrl);
+    string? BannerImageUrl,
+    string? DetailBackgroundImageUrl,
+    double? DetailBackgroundImageOpacity);

@@ -14,6 +14,8 @@ export interface OfferAdmin {
   bannerSubtitle: string | null;
   bannerBackgroundColor: string | null;
   bannerImageUrl: string | null;
+  detailBackgroundImageUrl: string | null;
+  detailBackgroundImageOpacity: number | null;
 }
 
 export interface OfferWriteRequest {
@@ -30,6 +32,8 @@ export interface OfferWriteRequest {
   bannerSubtitle: string | null;
   bannerBackgroundColor: string | null;
   bannerImageUrl: string | null;
+  detailBackgroundImageUrl: string | null;
+  detailBackgroundImageOpacity: number | null;
 }
 
 export function mapOfferAdmin(dto: OfferAdmin): OfferAdmin {
