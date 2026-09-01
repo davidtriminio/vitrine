@@ -61,13 +61,13 @@ public sealed class ProductService : IProductService
             // Promotion view: restrict to the products a single offer applies to.
             var offer = await _offers.GetByIdAsync(offerId, ct)
                 ?? throw new NotFoundException($"Offer '{offerId}' was not found.");
-            offerProductIds = offer.Scope == OfferScope.Product ? new[] { offer.TargetId } : Array.Empty<Guid>();
-            offerCategoryIds = offer.Scope == OfferScope.Category ? new[] { offer.TargetId } : Array.Empty<Guid>();
+            offerProductIds = offer.ProductIds.ToList();
+            offerCategoryIds = offer.CategoryIds.ToList();
         }
         else if (query.OnlyOnOffer)
         {
-            offerProductIds = activeOffers.Where(o => o.Scope == OfferScope.Product).Select(o => o.TargetId).ToList();
-            offerCategoryIds = activeOffers.Where(o => o.Scope == OfferScope.Category).Select(o => o.TargetId).ToList();
+            offerProductIds = activeOffers.SelectMany(o => o.ProductIds).Distinct().ToList();
+            offerCategoryIds = activeOffers.SelectMany(o => o.CategoryIds).Distinct().ToList();
         }
 
         var paged = await _products.GetPagedAsync(query, offerProductIds, offerCategoryIds, ct);

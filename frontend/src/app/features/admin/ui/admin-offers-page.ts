@@ -1,11 +1,13 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { LucidePencil, LucidePlus } from '@lucide/angular';
 import { AppError } from '../../../core/errors/app-error';
 import { TPipe } from '../../../core/i18n/t-pipe';
+import { TranslationService } from '../../../core/i18n/translation-service';
 import { BadgeComponent } from '../../../shared/ui/badge/badge';
 import { ButtonComponent } from '../../../shared/ui/button/button';
+import { ConfirmDialogComponent } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import { OfferAdmin } from '../infrastructure/offer-admin';
 import { AdminRepository } from '../infrastructure/admin-repository';
 import { AdminNavComponent } from './admin-nav';
@@ -20,6 +22,7 @@ import { AdminNavComponent } from './admin-nav';
     LucidePlus,
     BadgeComponent,
     ButtonComponent,
+    ConfirmDialogComponent,
     AdminNavComponent,
     TPipe,
   ],
@@ -74,7 +77,7 @@ import { AdminNavComponent } from './admin-nav';
                     >
                       <svg lucidePencil [size]="16"></svg>
                     </a>
-                    <app-button variant="danger" (click)="remove(offer)">✕</app-button>
+                    <app-button variant="danger" (click)="askRemove(offer)">✕</app-button>
                   </div>
                 </td>
               </tr>
@@ -87,13 +90,32 @@ import { AdminNavComponent } from './admin-nav';
         <p class="mt-4 text-sm text-danger">{{ error()?.title }}</p>
       }
     </div>
+
+    <app-confirm-dialog
+      [open]="pendingDelete() !== null"
+      [title]="'admin.deleteTitle' | t"
+      [message]="deleteMessage()"
+      [confirmLabel]="'admin.deleteConfirm' | t"
+      [cancelLabel]="'admin.cancel' | t"
+      [loading]="deleting()"
+      (confirm)="confirmRemove()"
+      (cancel)="pendingDelete.set(null)"
+    />
   `,
 })
 export class AdminOffersPage implements OnInit {
   private readonly repository = inject(AdminRepository);
+  private readonly translations = inject(TranslationService);
 
   protected readonly offers = signal<OfferAdmin[]>([]);
   protected readonly error = signal<AppError | null>(null);
+  protected readonly pendingDelete = signal<OfferAdmin | null>(null);
+  protected readonly deleting = signal(false);
+
+  protected readonly deleteMessage = computed(() => {
+    const offer = this.pendingDelete();
+    return offer ? this.translations.t('admin.deleteOfferMessage', { name: offer.name }) : '';
+  });
 
   ngOnInit(): void {
     this.load();
@@ -106,10 +128,29 @@ export class AdminOffersPage implements OnInit {
     });
   }
 
-  remove(offer: OfferAdmin): void {
+  askRemove(offer: OfferAdmin): void {
+    this.error.set(null);
+    this.pendingDelete.set(offer);
+  }
+
+  confirmRemove(): void {
+    const offer = this.pendingDelete();
+    if (!offer) {
+      return;
+    }
+
+    this.deleting.set(true);
     this.repository.deleteOffer(offer.id).subscribe({
-      next: () => this.load(),
-      error: (error: AppError) => this.error.set(error),
+      next: () => {
+        this.deleting.set(false);
+        this.pendingDelete.set(null);
+        this.load();
+      },
+      error: (error: AppError) => {
+        this.deleting.set(false);
+        this.pendingDelete.set(null);
+        this.error.set(error);
+      },
     });
   }
 }

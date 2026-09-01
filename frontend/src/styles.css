@@ -68,6 +68,76 @@ body {
   outline-offset: 2px;
 }
 
+/* Every interactive control shows a pointer cursor (disabled controls do not). */
+button:not(:disabled),
+[type='button']:not(:disabled),
+[type='submit']:not(:disabled),
+[type='reset']:not(:disabled),
+[type='checkbox']:not(:disabled),
+[type='radio']:not(:disabled),
+[role='button']:not([aria-disabled='true']),
+select:not(:disabled),
+summary,
+a[href],
+label:has(> input:not(:disabled)) {
+  cursor: pointer;
+}
+
+/* ---- Modular animation system ("vibe") -------------------------------------
+   The active vibe is written as data-vibe on <html> from BrandSettings.vibe, so
+   the storefront's motion adapts to the type of business (elegant / playful /
+   bold) without touching components. Components only opt in with the vibe-*
+   classes below; each vibe decides the tone. Reskin = change the vibe token. */
+@keyframes vibe-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes vibe-pop-in {
+  0% { opacity: 0; transform: scale(0.9); }
+  60% { transform: scale(1.03); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes vibe-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+@keyframes vibe-wiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-6deg); }
+  75% { transform: rotate(6deg); }
+}
+@keyframes vibe-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* elegant (default): a quiet entrance only. */
+:root:not([data-vibe]) .vibe-card,
+[data-vibe='elegant'] .vibe-card {
+  animation: vibe-fade-up 0.5s ease both;
+}
+
+/* playful: springy entrance, a wiggling offer badge and a bobbing banner icon. */
+[data-vibe='playful'] .vibe-card {
+  animation: vibe-fade-up 0.5s cubic-bezier(0.2, 0.8, 0.2, 1.2) both;
+}
+[data-vibe='playful'] .vibe-offer-badge {
+  animation: vibe-wiggle 2.4s ease-in-out infinite;
+  transform-origin: center;
+}
+[data-vibe='playful'] .vibe-banner-icon {
+  animation: vibe-bob 2s ease-in-out infinite;
+}
+
+/* bold: a punchy pop-in and pulsing accents. */
+[data-vibe='bold'] .vibe-card {
+  animation: vibe-pop-in 0.45s ease both;
+}
+[data-vibe='bold'] .vibe-offer-badge,
+[data-vibe='bold'] .vibe-banner-icon {
+  animation: vibe-pulse 1.6s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

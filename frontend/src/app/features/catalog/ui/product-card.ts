@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { TPipe } from '../../../core/i18n/t-pipe';
 import { BadgeComponent } from '../../../shared/ui/badge/badge';
+import { OfferIconComponent } from '../../../shared/ui/offer-icon/offer-icon';
 import { MoneyPipe } from '../../../shared/pipes/money-pipe';
 import { Product } from '../domain/catalog-models';
 
@@ -9,11 +10,11 @@ import { Product } from '../domain/catalog-models';
 @Component({
   selector: 'app-product-card',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, BadgeComponent, MoneyPipe, TPipe],
+  imports: [RouterLink, BadgeComponent, OfferIconComponent, MoneyPipe, TPipe],
   template: `
     <a
       [routerLink]="['/producto', product().id]"
-      class="group flex h-full flex-col overflow-hidden rounded-lg border border-muted/60 bg-surface shadow-sm ring-1 ring-black/[0.02] transition-all duration-200 hover:-translate-y-0.5 hover:border-muted hover:shadow-lg focus-visible:-translate-y-0.5 focus-visible:shadow-lg"
+      class="vibe-card group flex h-full cursor-pointer flex-col overflow-hidden rounded-lg border border-muted/60 bg-surface shadow-sm ring-1 ring-black/[0.02] transition-all duration-200 hover:-translate-y-0.5 hover:border-muted hover:shadow-lg focus-visible:-translate-y-0.5 focus-visible:shadow-lg"
     >
       <div class="relative aspect-[4/5] overflow-hidden bg-surface-2">
         @if (product().images.length > 0) {
@@ -25,8 +26,13 @@ import { Product } from '../domain/catalog-models';
           />
         }
         @if (product().price.hasDiscount) {
-          <div class="absolute left-3 top-3">
-            <app-badge tone="offer">{{ 'product.offerBadge' | t }}</app-badge>
+          <div class="vibe-offer-badge absolute left-3 top-3">
+            <app-badge tone="offer">
+              @if (product().price.appliedOffer?.iconName; as icon) {
+                <app-offer-icon [name]="icon" [size]="13" />
+              }
+              {{ 'product.offerBadge' | t }}
+            </app-badge>
           </div>
         }
       </div>

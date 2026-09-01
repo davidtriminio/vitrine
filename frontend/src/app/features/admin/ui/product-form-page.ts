@@ -6,6 +6,7 @@ import { TPipe } from '../../../core/i18n/t-pipe';
 import { ButtonComponent } from '../../../shared/ui/button/button';
 import { Category, ProductAttribute } from '../../catalog/domain/catalog-models';
 import { AdminRepository, ProductWriteRequest } from '../infrastructure/admin-repository';
+import { ImageInputComponent } from './image-input';
 
 interface ProductFormModel {
   name: string;
@@ -30,7 +31,7 @@ const EMPTY_MODEL: ProductFormModel = {
 @Component({
   selector: 'app-product-form-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, FormField, ButtonComponent, TPipe],
+  imports: [RouterLink, FormField, ButtonComponent, ImageInputComponent, TPipe],
   template: `
     <div class="mx-auto max-w-2xl px-4 py-6">
       <h1 class="text-2xl font-bold text-fg">
@@ -92,10 +93,11 @@ const EMPTY_MODEL: ProductFormModel = {
           ></textarea>
         </div>
 
-        <div>
-          <label for="imageUrl" class="text-sm font-medium text-fg">Imagen (URL)</label>
-          <input id="imageUrl" [formField]="productForm.imageUrl" [class]="inputClass" />
-        </div>
+        <app-image-input
+          [label]="'admin.image' | t"
+          [value]="productForm.imageUrl().value()"
+          (valueChange)="setImage($event)"
+        />
 
         <label class="flex items-center gap-2 text-sm text-fg">
           <input type="checkbox" [formField]="productForm.isActive" />
@@ -181,6 +183,10 @@ export class ProductFormPage implements OnInit {
         },
       });
     }
+  }
+
+  setImage(url: string): void {
+    this.model.update((current) => ({ ...current, imageUrl: url }));
   }
 
   submit(): void {

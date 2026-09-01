@@ -8,6 +8,7 @@ export interface AppliedOffer {
   name: string;
   type: string;
   value: number;
+  iconName: string | null;
 }
 
 export interface Price {
@@ -41,8 +42,7 @@ export interface Category {
 export interface OfferBanner {
   id: string;
   name: string;
-  scope: string;
-  targetId: string;
+  iconName: string | null;
   bannerTitle: string | null;
   bannerSubtitle: string | null;
   bannerBackgroundColor: string | null;

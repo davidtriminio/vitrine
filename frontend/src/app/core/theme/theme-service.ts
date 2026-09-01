@@ -21,6 +21,15 @@ export class ThemeService {
     this.write(DEFAULT_THEME);
   }
 
+  /**
+   * Sets the storefront animation "vibe" as a data attribute on the root element,
+   * which the CSS animation system (styles.css) keys off. Empty/unknown falls back
+   * to the elegant baseline.
+   */
+  applyVibe(vibe: string | null | undefined): void {
+    this.document.documentElement.dataset['vibe'] = (vibe ?? 'elegant').trim().toLowerCase() || 'elegant';
+  }
+
   private write(theme: Record<string, string>): void {
     const root = this.document.documentElement;
     for (const [name, value] of Object.entries(theme)) {
