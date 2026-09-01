@@ -24,9 +24,10 @@ public sealed class ProductsController : ControllerBase
         [FromQuery] string? search = null,
         [FromQuery] bool onlyOnOffer = false,
         [FromQuery] Guid? offerId = null,
+        [FromQuery] ProductSort sort = ProductSort.IdAsc,
         CancellationToken ct = default) =>
         _products.ListAsync(
-            new ProductQuery(page, pageSize, categoryId, search, onlyOnOffer, OfferId: offerId),
+            new ProductQuery(page, pageSize, categoryId, search, onlyOnOffer, OfferId: offerId, Sort: sort),
             ct);
 
     /// <summary>Admin listing including inactive products.</summary>

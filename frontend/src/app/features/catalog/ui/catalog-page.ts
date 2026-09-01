@@ -5,6 +5,7 @@ import { TPipe } from '../../../core/i18n/t-pipe';
 import { SettingsStore } from '../../../core/settings/settings-store';
 import { ButtonComponent } from '../../../shared/ui/button/button';
 import { OfferBannerComponent } from '../../offers/ui/offer-banner';
+import { ProductSort } from '../domain/catalog-models';
 import { CatalogStore } from '../application/catalog-store';
 import { ProductCardComponent } from './product-card';
 import { SidebarComponent } from './sidebar';
@@ -110,8 +111,44 @@ import { SidebarComponent } from './sidebar';
         </button>
       </div>
 
+      <!-- Results toolbar: count, clear and ordering -->
+      <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          @if (!store.loading()) {
+            <p class="text-sm text-fg-muted">
+              {{ (store.totalItems() === 1 ? 'catalog.result' : 'catalog.results') | t: { count: store.totalItems() } }}
+            </p>
+          }
+          @if (store.hasActiveFilters()) {
+            <button
+              type="button"
+              (click)="store.clearFilters()"
+              class="cursor-pointer text-sm font-medium text-primary-strong hover:underline"
+            >
+              {{ 'catalog.clearFilters' | t }}
+            </button>
+          }
+        </div>
+
+        <label class="flex items-center gap-2 text-sm text-fg-muted">
+          <span>{{ 'catalog.sortLabel' | t }}</span>
+          <select
+            [value]="store.filters().sort"
+            (change)="onSort($event)"
+            class="cursor-pointer rounded-md border border-muted bg-surface-2 px-2 py-1.5 text-sm text-fg focus-visible:border-primary-strong"
+          >
+            <option value="IdAsc">{{ 'catalog.sortId' | t }}</option>
+            <option value="Newest">{{ 'catalog.sortNewest' | t }}</option>
+            <option value="Oldest">{{ 'catalog.sortOldest' | t }}</option>
+            <option value="PriceAsc">{{ 'catalog.sortPriceAsc' | t }}</option>
+            <option value="PriceDesc">{{ 'catalog.sortPriceDesc' | t }}</option>
+            <option value="Name">{{ 'catalog.sortName' | t }}</option>
+          </select>
+        </label>
+      </div>
+
       <!-- Grid / states -->
-      <div class="mt-6">
+      <div class="mt-4">
         @if (store.loading()) {
           <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             @for (skeleton of skeletons; track skeleton) {
@@ -177,6 +214,10 @@ export class CatalogPage implements OnInit {
   onSearch(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.store.setSearch(value);
+  }
+
+  onSort(event: Event): void {
+    this.store.setSort((event.target as HTMLSelectElement).value as ProductSort);
   }
 
   chipClass(active: boolean): string {

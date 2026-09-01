@@ -51,8 +51,20 @@ public sealed class ProductRepository : IProductRepository
 
         var total = await q.CountAsync(ct);
 
+        // Ordering by base price is a good-enough "by price" sort; the displayed final
+        // price only differs by any active discount, which is applied above the repository.
+        q = query.Sort switch
+        {
+            ProductSort.Newest => q.OrderByDescending(p => p.CreatedAt),
+            ProductSort.Oldest => q.OrderBy(p => p.CreatedAt),
+            ProductSort.PriceAsc => q.OrderBy(p => p.BasePrice).ThenBy(p => p.Sku),
+            ProductSort.PriceDesc => q.OrderByDescending(p => p.BasePrice).ThenBy(p => p.Sku),
+            ProductSort.Name => q.OrderBy(p => p.Name).ThenBy(p => p.Sku),
+            // IdAsc (default): by reference number (zero-padded SKU sorts numerically).
+            _ => q.OrderBy(p => p.Sku),
+        };
+
         var items = await q
-            .OrderByDescending(p => p.CreatedAt)
             .Skip((query.NormalizedPage - 1) * query.NormalizedPageSize)
             .Take(query.NormalizedPageSize)
             .ToListAsync(ct);
