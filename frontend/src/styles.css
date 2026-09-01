@@ -27,6 +27,11 @@
   --color-whatsapp-strong: #1da851;
   --color-whatsapp-fg: #ffffff;
 
+  /* SKU / reference chip — a distinguishable amber so buyer and seller spot the
+     product number at a glance. White-label brands can override these tokens. */
+  --color-sku: #b45309;
+  --color-sku-fg: #ffffff;
+
   --color-success: #5f7029;
   --color-danger: #b3261e;
   --color-warning: #b06d00;
@@ -52,6 +57,8 @@
   --color-accent: #a6bd52;
   --color-accent-strong: #bcd06e;
   --color-accent-fg: #1c2410;
+  --color-sku: #f59e0b;
+  --color-sku-fg: #201b19;
   --color-ring: #f4a9c8;
 }
 

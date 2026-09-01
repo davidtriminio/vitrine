@@ -19,6 +19,7 @@ export const es = {
   'catalog.viewDetail': 'Ver detalle',
 
   'product.offerBadge': 'Oferta',
+  'product.reference': 'Ref. {sku}',
   'product.from': 'Antes',
   'product.notFound': 'Producto no encontrado.',
   'product.backToCatalog': 'Volver al catálogo',
