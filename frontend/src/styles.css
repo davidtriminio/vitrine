@@ -22,6 +22,11 @@
   --color-accent-strong: #5f7029;
   --color-accent-fg: #ffffff;
 
+  /* WhatsApp brand color — a fixed external brand constant, not a themable token. */
+  --color-whatsapp: #25d366;
+  --color-whatsapp-strong: #1da851;
+  --color-whatsapp-fg: #ffffff;
+
   --color-success: #5f7029;
   --color-danger: #b3261e;
   --color-warning: #b06d00;
