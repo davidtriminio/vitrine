@@ -10,12 +10,12 @@ public sealed class OfferTests
     private static Offer BuildOffer(
         DiscountType type = DiscountType.Percentage,
         decimal value = 10m,
-        OfferScope scope = OfferScope.Product,
         DateTimeOffset? start = null,
         DateTimeOffset? end = null)
     {
         var now = DateTimeOffset.UtcNow;
-        return new Offer(Guid.NewGuid(), "Test", type, value, scope, Guid.NewGuid(),
+        return new Offer(Guid.NewGuid(), "Test", type, value,
+            categoryIds: Array.Empty<Guid>(), productIds: new[] { Guid.NewGuid() },
             start ?? now.AddDays(-1), end ?? now.AddDays(1));
     }
 
@@ -41,6 +41,16 @@ public sealed class OfferTests
     {
         var now = DateTimeOffset.UtcNow;
         var act = () => BuildOffer(start: now.AddDays(1), end: now.AddDays(-1));
+        act.Should().Throw<DomainException>();
+    }
+
+    [Fact]
+    public void NoTargets_Throws()
+    {
+        var now = DateTimeOffset.UtcNow;
+        var act = () => new Offer(Guid.NewGuid(), "Test", DiscountType.Percentage, 10m,
+            categoryIds: Array.Empty<Guid>(), productIds: Array.Empty<Guid>(),
+            now.AddDays(-1), now.AddDays(1));
         act.Should().Throw<DomainException>();
     }
 

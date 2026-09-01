@@ -40,7 +40,7 @@ export class ButtonComponent {
 
   readonly classes = computed(() =>
     [
-      'inline-flex items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold',
+      'inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold',
       'transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
       VARIANT_CLASSES[this.variant()],
       this.fullWidth() ? 'w-full' : '',

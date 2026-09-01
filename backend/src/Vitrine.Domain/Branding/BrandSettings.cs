@@ -19,6 +19,12 @@ public sealed class BrandSettings
     public string LogoUrl { get; private set; }
     public string WhatsappNumber { get; private set; }
     public string DefaultLocale { get; private set; }
+
+    /// <summary>
+    /// Animation "vibe" for the storefront (e.g. elegant, playful, bold). Drives the
+    /// modular CSS animation set the frontend activates per brand/business type.
+    /// </summary>
+    public string Vibe { get; private set; }
     public string? HeroTitle { get; private set; }
     public string? HeroSubtitle { get; private set; }
     public string? HeroImageUrl { get; private set; }
@@ -32,7 +38,11 @@ public sealed class BrandSettings
         LogoUrl = string.Empty;
         WhatsappNumber = string.Empty;
         DefaultLocale = "es";
+        Vibe = DefaultVibe;
     }
+
+    /// <summary>Fallback vibe when a brand does not specify one.</summary>
+    public const string DefaultVibe = "elegant";
 
     public BrandSettings(
         string brandName,
@@ -42,14 +52,16 @@ public sealed class BrandSettings
         IReadOnlyDictionary<string, string> themeTokens,
         string? heroTitle = null,
         string? heroSubtitle = null,
-        string? heroImageUrl = null)
+        string? heroImageUrl = null,
+        string? vibe = null)
     {
         Id = SingletonId;
         BrandName = string.Empty;
         LogoUrl = string.Empty;
         WhatsappNumber = string.Empty;
         DefaultLocale = "es";
-        Update(brandName, logoUrl, whatsappNumber, defaultLocale, themeTokens, heroTitle, heroSubtitle, heroImageUrl);
+        Vibe = DefaultVibe;
+        Update(brandName, logoUrl, whatsappNumber, defaultLocale, themeTokens, heroTitle, heroSubtitle, heroImageUrl, vibe);
     }
 
     public void Update(
@@ -60,7 +72,8 @@ public sealed class BrandSettings
         IReadOnlyDictionary<string, string> themeTokens,
         string? heroTitle,
         string? heroSubtitle,
-        string? heroImageUrl)
+        string? heroImageUrl,
+        string? vibe = null)
     {
         if (string.IsNullOrWhiteSpace(brandName))
         {
@@ -76,6 +89,7 @@ public sealed class BrandSettings
         LogoUrl = (logoUrl ?? string.Empty).Trim();
         WhatsappNumber = NormalizeWhatsapp(whatsappNumber);
         DefaultLocale = string.IsNullOrWhiteSpace(defaultLocale) ? "es" : defaultLocale.Trim().ToLowerInvariant();
+        Vibe = string.IsNullOrWhiteSpace(vibe) ? DefaultVibe : vibe.Trim().ToLowerInvariant();
         HeroTitle = string.IsNullOrWhiteSpace(heroTitle) ? null : heroTitle.Trim();
         HeroSubtitle = string.IsNullOrWhiteSpace(heroSubtitle) ? null : heroSubtitle.Trim();
         HeroImageUrl = string.IsNullOrWhiteSpace(heroImageUrl) ? null : heroImageUrl.Trim();

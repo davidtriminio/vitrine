@@ -43,7 +43,8 @@ public sealed class BrandSettingsService : IBrandSettingsService
             request.ThemeTokens,
             request.HeroTitle,
             request.HeroSubtitle,
-            request.HeroImageUrl);
+            request.HeroImageUrl,
+            request.Vibe);
 
         _repository.Update(settings);
         await _unitOfWork.SaveChangesAsync(ct);
@@ -59,5 +60,6 @@ public sealed class BrandSettingsService : IBrandSettingsService
         settings.ThemeTokens,
         settings.HeroTitle,
         settings.HeroSubtitle,
-        settings.HeroImageUrl);
+        settings.HeroImageUrl,
+        settings.Vibe);
 }

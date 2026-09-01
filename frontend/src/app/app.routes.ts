@@ -40,6 +40,12 @@ export const routes: Routes = [
       import('./features/admin/ui/product-form-page').then((m) => m.ProductFormPage),
   },
   {
+    path: 'admin/categorias',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/admin/ui/admin-categories-page').then((m) => m.AdminCategoriesPage),
+  },
+  {
     path: 'admin/ofertas',
     canActivate: [authGuard],
     loadComponent: () =>
@@ -56,6 +62,12 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () =>
       import('./features/admin/ui/offer-form-page').then((m) => m.OfferFormPage),
+  },
+  {
+    path: 'admin/configuracion',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/admin/ui/settings-page').then((m) => m.SettingsPage),
   },
   { path: '**', redirectTo: '' },
 ];

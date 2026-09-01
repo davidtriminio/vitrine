@@ -1,10 +1,12 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucidePencil, LucidePlus } from '@lucide/angular';
 import { AppError } from '../../../core/errors/app-error';
 import { TPipe } from '../../../core/i18n/t-pipe';
+import { TranslationService } from '../../../core/i18n/translation-service';
 import { BadgeComponent } from '../../../shared/ui/badge/badge';
 import { ButtonComponent } from '../../../shared/ui/button/button';
+import { ConfirmDialogComponent } from '../../../shared/ui/confirm-dialog/confirm-dialog';
 import { MoneyPipe } from '../../../shared/pipes/money-pipe';
 import { Product } from '../../catalog/domain/catalog-models';
 import { AdminRepository } from '../infrastructure/admin-repository';
@@ -19,6 +21,7 @@ import { AdminNavComponent } from './admin-nav';
     LucidePlus,
     BadgeComponent,
     ButtonComponent,
+    ConfirmDialogComponent,
     MoneyPipe,
     AdminNavComponent,
     TPipe,
@@ -70,7 +73,7 @@ import { AdminNavComponent } from './admin-nav';
                     >
                       <svg lucidePencil [size]="16"></svg>
                     </a>
-                    <app-button variant="danger" (click)="remove(product)">✕</app-button>
+                    <app-button variant="danger" (click)="askRemove(product)">✕</app-button>
                   </div>
                 </td>
               </tr>
@@ -83,13 +86,32 @@ import { AdminNavComponent } from './admin-nav';
         <p class="mt-4 text-sm text-danger">{{ error()?.title }}</p>
       }
     </div>
+
+    <app-confirm-dialog
+      [open]="pendingDelete() !== null"
+      [title]="'admin.deleteTitle' | t"
+      [message]="deleteMessage()"
+      [confirmLabel]="'admin.deleteConfirm' | t"
+      [cancelLabel]="'admin.cancel' | t"
+      [loading]="deleting()"
+      (confirm)="confirmRemove()"
+      (cancel)="pendingDelete.set(null)"
+    />
   `,
 })
 export class AdminProductsPage implements OnInit {
   private readonly repository = inject(AdminRepository);
+  private readonly translations = inject(TranslationService);
 
   protected readonly products = signal<Product[]>([]);
   protected readonly error = signal<AppError | null>(null);
+  protected readonly pendingDelete = signal<Product | null>(null);
+  protected readonly deleting = signal(false);
+
+  protected readonly deleteMessage = computed(() => {
+    const product = this.pendingDelete();
+    return product ? this.translations.t('admin.deleteProductMessage', { name: product.name }) : '';
+  });
 
   ngOnInit(): void {
     this.load();
@@ -102,10 +124,29 @@ export class AdminProductsPage implements OnInit {
     });
   }
 
-  remove(product: Product): void {
+  askRemove(product: Product): void {
+    this.error.set(null);
+    this.pendingDelete.set(product);
+  }
+
+  confirmRemove(): void {
+    const product = this.pendingDelete();
+    if (!product) {
+      return;
+    }
+
+    this.deleting.set(true);
     this.repository.deleteProduct(product.id).subscribe({
-      next: () => this.load(),
-      error: (error: AppError) => this.error.set(error),
+      next: () => {
+        this.deleting.set(false);
+        this.pendingDelete.set(null);
+        this.load();
+      },
+      error: (error: AppError) => {
+        this.deleting.set(false);
+        this.pendingDelete.set(null);
+        this.error.set(error);
+      },
     });
   }
 }

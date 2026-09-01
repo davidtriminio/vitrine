@@ -35,8 +35,8 @@ public sealed class PricingService
             var isTieButProductScoped =
                 winner is not null
                 && candidatePrice.Amount == winningPrice.Amount
-                && offer.Scope == OfferScope.Product
-                && winner.Scope == OfferScope.Category;
+                && offer.AppliesDirectlyToProduct(product)
+                && !winner.AppliesDirectlyToProduct(product);
 
             if (winner is null || isCheaper || isTieButProductScoped)
             {

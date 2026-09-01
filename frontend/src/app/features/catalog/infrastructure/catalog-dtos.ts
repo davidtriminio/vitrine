@@ -21,7 +21,7 @@ export interface ProductDto {
     finalPrice: number;
     savings: number;
     hasDiscount: boolean;
-    appliedOffer: { id: string; name: string; type: string; value: number } | null;
+    appliedOffer: { id: string; name: string; type: string; value: number; iconName: string | null } | null;
   };
   isActive: boolean;
 }
@@ -43,8 +43,7 @@ export interface CategoryDto {
 export interface OfferBannerDto {
   id: string;
   name: string;
-  scope: string;
-  targetId: string;
+  iconName: string | null;
   bannerTitle: string | null;
   bannerSubtitle: string | null;
   bannerBackgroundColor: string | null;
@@ -91,8 +90,7 @@ export function mapOfferBanner(dto: OfferBannerDto): OfferBanner {
   return {
     id: dto.id,
     name: dto.name,
-    scope: dto.scope,
-    targetId: dto.targetId,
+    iconName: dto.iconName,
     bannerTitle: dto.bannerTitle,
     bannerSubtitle: dto.bannerSubtitle,
     bannerBackgroundColor: dto.bannerBackgroundColor,

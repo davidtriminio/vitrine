@@ -4,24 +4,30 @@ import { FormField, form, required } from '@angular/forms/signals';
 import { AppError } from '../../../core/errors/app-error';
 import { TPipe } from '../../../core/i18n/t-pipe';
 import { ButtonComponent } from '../../../shared/ui/button/button';
+import { OfferIconComponent, OFFER_ICONS } from '../../../shared/ui/offer-icon/offer-icon';
 import { Category } from '../../catalog/domain/catalog-models';
 import { AdminRepository } from '../infrastructure/admin-repository';
 import { OfferWriteRequest } from '../infrastructure/offer-admin';
+import { ImageInputComponent } from './image-input';
 
-interface TargetOption {
+interface ProductPick {
   id: string;
   name: string;
+  image: string | null;
 }
+
+const PRODUCT_PICK_PAGE_SIZE = 8;
 
 interface OfferFormModel {
   name: string;
   discountType: string;
   value: number;
-  scope: string;
-  targetId: string;
+  categoryIds: string[];
+  productIds: string[];
   startsAt: string;
   endsAt: string;
   isActive: boolean;
+  iconName: string;
   bannerTitle: string;
   bannerSubtitle: string;
   bannerBackgroundColor: string;
@@ -42,11 +48,12 @@ function defaultModel(): OfferFormModel {
     name: '',
     discountType: 'Percentage',
     value: 10,
-    scope: 'Category',
-    targetId: '',
+    categoryIds: [],
+    productIds: [],
     startsAt: toLocalInput(now.toISOString()),
     endsAt: toLocalInput(end.toISOString()),
     isActive: true,
+    iconName: '',
     bannerTitle: '',
     bannerSubtitle: '',
     bannerBackgroundColor: '',
@@ -57,7 +64,7 @@ function defaultModel(): OfferFormModel {
 @Component({
   selector: 'app-offer-form-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, FormField, ButtonComponent, TPipe],
+  imports: [RouterLink, FormField, ButtonComponent, ImageInputComponent, OfferIconComponent, TPipe],
   template: `
     <div class="mx-auto max-w-2xl px-4 py-6">
       <h1 class="text-2xl font-bold text-fg">
@@ -86,24 +93,97 @@ function defaultModel(): OfferFormModel {
           </div>
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label for="scope" class="text-sm font-medium text-fg">{{ 'admin.scope' | t }}</label>
-            <select id="scope" [formField]="offerForm.scope" [class]="inputClass">
-              <option value="Category">{{ 'admin.scopeCategory' | t }}</option>
-              <option value="Product">{{ 'admin.scopeProduct' | t }}</option>
-            </select>
-          </div>
-          <div>
-            <label for="target" class="text-sm font-medium text-fg">{{ 'admin.target' | t }}</label>
-            <select id="target" [formField]="offerForm.targetId" [class]="inputClass">
-              <option value="" disabled>—</option>
-              @for (option of targetOptions(); track option.id) {
-                <option [value]="option.id">{{ option.name }}</option>
+        <!-- Targets: whole categories and/or specific products ("ramos"). -->
+        <fieldset class="rounded-lg border border-muted p-4">
+          <legend class="px-1 text-sm font-semibold text-fg-muted">{{ 'admin.target' | t }}</legend>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <p class="text-sm font-medium text-fg">{{ 'admin.targetCategories' | t }}</p>
+              <div class="mt-2 max-h-44 space-y-1 overflow-y-auto rounded-md border border-muted bg-surface-2 p-2">
+                @for (category of categories(); track category.id) {
+                  <label class="flex cursor-pointer items-center gap-2 rounded px-1 py-0.5 text-sm text-fg hover:bg-muted/40">
+                    <input
+                      type="checkbox"
+                      [checked]="model().categoryIds.includes(category.id)"
+                      (change)="toggleCategory(category.id)"
+                    />
+                    {{ category.name }}
+                  </label>
+                } @empty {
+                  <p class="px-1 text-xs text-fg-muted">—</p>
+                }
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between">
+                <p class="text-sm font-medium text-fg">{{ 'admin.targetProducts' | t }}</p>
+                @if (selectedProductCount() > 0) {
+                  <span class="text-xs font-medium text-primary-strong">
+                    {{ selectedProductCount() }} {{ 'admin.selectedCount' | t }}
+                  </span>
+                }
+              </div>
+
+              <input
+                type="search"
+                [value]="productSearch()"
+                (input)="onProductSearch($event)"
+                [placeholder]="'admin.searchProducts' | t"
+                [class]="inputClass"
+              />
+
+              <div class="mt-2 max-h-52 space-y-1 overflow-y-auto rounded-md border border-muted bg-surface-2 p-2">
+                @for (product of products(); track product.id) {
+                  <label class="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-sm text-fg hover:bg-muted/40">
+                    <input
+                      type="checkbox"
+                      [checked]="model().productIds.includes(product.id)"
+                      (change)="toggleProduct(product.id)"
+                    />
+                    @if (product.image) {
+                      <img [src]="product.image" alt="" loading="lazy" class="h-9 w-9 shrink-0 rounded object-cover" />
+                    } @else {
+                      <span class="h-9 w-9 shrink-0 rounded bg-muted"></span>
+                    }
+                    <span class="line-clamp-2 leading-tight">{{ product.name }}</span>
+                  </label>
+                } @empty {
+                  <p class="px-1 text-xs text-fg-muted">
+                    {{ productLoading() ? ('app.loading' | t) : '—' }}
+                  </p>
+                }
+              </div>
+
+              @if (productTotalPages() > 1) {
+                <div class="mt-2 flex items-center justify-between text-xs text-fg-muted">
+                  <button
+                    type="button"
+                    (click)="prevProductPage()"
+                    [disabled]="productPage() === 1"
+                    class="cursor-pointer rounded border border-muted px-2 py-1 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    ‹
+                  </button>
+                  <span>{{ productPage() }} / {{ productTotalPages() }}</span>
+                  <button
+                    type="button"
+                    (click)="nextProductPage()"
+                    [disabled]="productPage() === productTotalPages()"
+                    class="cursor-pointer rounded border border-muted px-2 py-1 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    ›
+                  </button>
+                </div>
               }
-            </select>
+            </div>
           </div>
-        </div>
+
+          @if (!hasTarget()) {
+            <p class="mt-2 text-xs text-danger">{{ 'admin.targetRequired' | t }}</p>
+          }
+        </fieldset>
 
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
@@ -119,6 +199,30 @@ function defaultModel(): OfferFormModel {
         <fieldset class="rounded-lg border border-muted p-4">
           <legend class="px-1 text-sm font-semibold text-fg-muted">Banner</legend>
           <div class="space-y-4">
+            <div>
+              <p class="text-sm font-medium text-fg">{{ 'admin.offerIcon' | t }}</p>
+              <div class="mt-2 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  (click)="setIcon('')"
+                  [class]="iconButtonClass(model().iconName === '')"
+                  [attr.aria-label]="'admin.iconNone' | t"
+                >
+                  ✕
+                </button>
+                @for (icon of icons; track icon) {
+                  <button
+                    type="button"
+                    (click)="setIcon(icon)"
+                    [class]="iconButtonClass(model().iconName === icon)"
+                    [attr.aria-label]="icon"
+                  >
+                    <app-offer-icon [name]="icon" [size]="18" />
+                  </button>
+                }
+              </div>
+            </div>
+
             <div>
               <label for="bannerTitle" class="text-sm font-medium text-fg">
                 {{ 'admin.bannerTitle' | t }}
@@ -136,19 +240,26 @@ function defaultModel(): OfferFormModel {
                 <label for="bannerColor" class="text-sm font-medium text-fg">
                   {{ 'admin.bannerColor' | t }}
                 </label>
-                <input id="bannerColor" placeholder="#f099be" [formField]="offerForm.bannerBackgroundColor" [class]="inputClass" />
+                <div class="mt-1 flex items-center gap-2">
+                  <input
+                    type="color"
+                    class="h-10 w-12 shrink-0 cursor-pointer rounded border border-muted bg-transparent"
+                    [value]="offerForm.bannerBackgroundColor().value() || '#f099be'"
+                    (input)="setBannerColor($event)"
+                  />
+                  <input id="bannerColor" placeholder="#f099be" [formField]="offerForm.bannerBackgroundColor" [class]="inputClass" />
+                </div>
               </div>
-              <div>
-                <label for="bannerImage" class="text-sm font-medium text-fg">
-                  {{ 'admin.bannerImage' | t }}
-                </label>
-                <input id="bannerImage" [formField]="offerForm.bannerImageUrl" [class]="inputClass" />
-              </div>
+              <app-image-input
+                [label]="'admin.bannerImage' | t"
+                [value]="offerForm.bannerImageUrl().value()"
+                (valueChange)="setBannerImage($event)"
+              />
             </div>
           </div>
         </fieldset>
 
-        <label class="flex items-center gap-2 text-sm text-fg">
+        <label class="flex cursor-pointer items-center gap-2 text-sm text-fg">
           <input type="checkbox" [formField]="offerForm.isActive" />
           {{ 'admin.active' | t }}
         </label>
@@ -158,12 +269,12 @@ function defaultModel(): OfferFormModel {
         }
 
         <div class="flex gap-2">
-          <app-button [loading]="submitting()" [disabled]="offerForm().invalid()" (click)="submit()">
+          <app-button [loading]="submitting()" [disabled]="offerForm().invalid() || !hasTarget()" (click)="submit()">
             {{ 'admin.save' | t }}
           </app-button>
           <a
             routerLink="/admin/ofertas"
-            class="inline-flex items-center rounded-md border border-muted px-4 py-2.5 text-sm text-fg-muted hover:text-fg"
+            class="inline-flex cursor-pointer items-center rounded-md border border-muted px-4 py-2.5 text-sm text-fg-muted hover:text-fg"
           >
             {{ 'admin.cancel' | t }}
           </a>
@@ -178,23 +289,28 @@ export class OfferFormPage implements OnInit {
 
   readonly id = input<string>();
 
+  protected readonly icons = OFFER_ICONS;
   protected readonly submitting = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly isEdit = computed(() => !!this.id());
   protected readonly inputClass =
     'mt-1 w-full rounded-md border border-muted bg-surface-2 px-3 py-2.5 text-sm text-fg focus-visible:border-primary-strong';
 
-  private readonly categories = signal<Category[]>([]);
-  private readonly products = signal<TargetOption[]>([]);
+  protected readonly categories = signal<Category[]>([]);
+  protected readonly products = signal<ProductPick[]>([]);
+  protected readonly productSearch = signal('');
+  protected readonly productPage = signal(1);
+  protected readonly productTotalPages = signal(1);
+  protected readonly productLoading = signal(false);
+  protected readonly selectedProductCount = computed(() => this.model().productIds.length);
 
-  private readonly model = signal<OfferFormModel>(defaultModel());
+  protected readonly model = signal<OfferFormModel>(defaultModel());
   protected readonly offerForm = form(this.model, (path) => {
     required(path.name);
-    required(path.targetId);
   });
 
-  protected readonly targetOptions = computed<TargetOption[]>(() =>
-    this.model().scope === 'Product' ? this.products() : this.categories(),
+  protected readonly hasTarget = computed(
+    () => this.model().categoryIds.length > 0 || this.model().productIds.length > 0,
   );
 
   ngOnInit(): void {
@@ -202,10 +318,7 @@ export class OfferFormPage implements OnInit {
       next: (categories) => this.categories.set(categories),
       error: () => this.categories.set([]),
     });
-    this.repository.getProducts(1).subscribe({
-      next: (paged) => this.products.set(paged.items.map((p) => ({ id: p.id, name: p.name }))),
-      error: () => this.products.set([]),
-    });
+    this.loadProducts();
 
     const editId = this.id();
     if (editId) {
@@ -215,11 +328,12 @@ export class OfferFormPage implements OnInit {
             name: offer.name,
             discountType: offer.discountType,
             value: offer.value,
-            scope: offer.scope,
-            targetId: offer.targetId,
+            categoryIds: offer.categoryIds,
+            productIds: offer.productIds,
             startsAt: toLocalInput(offer.startsAt),
             endsAt: toLocalInput(offer.endsAt),
             isActive: offer.isActive,
+            iconName: offer.iconName ?? '',
             bannerTitle: offer.bannerTitle ?? '',
             bannerSubtitle: offer.bannerSubtitle ?? '',
             bannerBackgroundColor: offer.bannerBackgroundColor ?? '',
@@ -231,8 +345,73 @@ export class OfferFormPage implements OnInit {
     }
   }
 
+  loadProducts(): void {
+    this.productLoading.set(true);
+    this.repository
+      .getProducts(this.productPage(), this.productSearch(), PRODUCT_PICK_PAGE_SIZE)
+      .subscribe({
+        next: (paged) => {
+          this.products.set(paged.items.map((p) => ({ id: p.id, name: p.name, image: p.images[0] ?? null })));
+          this.productTotalPages.set(Math.max(1, paged.totalPages));
+          this.productLoading.set(false);
+        },
+        error: () => {
+          this.products.set([]);
+          this.productLoading.set(false);
+        },
+      });
+  }
+
+  onProductSearch(event: Event): void {
+    this.productSearch.set((event.target as HTMLInputElement).value);
+    this.productPage.set(1);
+    this.loadProducts();
+  }
+
+  prevProductPage(): void {
+    if (this.productPage() > 1) {
+      this.productPage.update((p) => p - 1);
+      this.loadProducts();
+    }
+  }
+
+  nextProductPage(): void {
+    if (this.productPage() < this.productTotalPages()) {
+      this.productPage.update((p) => p + 1);
+      this.loadProducts();
+    }
+  }
+
+  protected iconButtonClass(selected: boolean): string {
+    return [
+      'inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-md border text-fg',
+      selected ? 'border-primary-strong bg-primary/20' : 'border-muted bg-surface-2 hover:bg-muted/40',
+    ].join(' ');
+  }
+
+  toggleCategory(id: string): void {
+    this.model.update((m) => ({ ...m, categoryIds: toggle(m.categoryIds, id) }));
+  }
+
+  toggleProduct(id: string): void {
+    this.model.update((m) => ({ ...m, productIds: toggle(m.productIds, id) }));
+  }
+
+  setIcon(icon: string): void {
+    this.model.update((m) => ({ ...m, iconName: icon }));
+  }
+
+  setBannerImage(url: string): void {
+    this.model.update((current) => ({ ...current, bannerImageUrl: url }));
+  }
+
+  setBannerColor(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.model.update((current) => ({ ...current, bannerBackgroundColor: value }));
+  }
+
   submit(): void {
-    if (this.offerForm().invalid()) {
+    if (this.offerForm().invalid() || !this.hasTarget()) {
       return;
     }
 
@@ -244,11 +423,12 @@ export class OfferFormPage implements OnInit {
       name: values.name,
       discountType: values.discountType,
       value: Number(values.value),
-      scope: values.scope,
-      targetId: values.targetId,
+      categoryIds: values.categoryIds,
+      productIds: values.productIds,
       startsAt: new Date(values.startsAt).toISOString(),
       endsAt: new Date(values.endsAt).toISOString(),
       isActive: values.isActive,
+      iconName: values.iconName.trim() || null,
       bannerTitle: values.bannerTitle.trim() || null,
       bannerSubtitle: values.bannerSubtitle.trim() || null,
       bannerBackgroundColor: values.bannerBackgroundColor.trim() || null,
@@ -271,4 +451,9 @@ export class OfferFormPage implements OnInit {
       },
     });
   }
+}
+
+/** Adds or removes an id from a string array (immutably). */
+function toggle(list: string[], id: string): string[] {
+  return list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
 }
