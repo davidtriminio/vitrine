@@ -11,22 +11,21 @@ public sealed class LocalImageStorage : IImageStorage
 {
     public const string PublicFolder = "uploads";
 
-    private readonly IWebHostEnvironment _environment;
+        private readonly string _uploadsPath;
 
-    public LocalImageStorage(IWebHostEnvironment environment) => _environment = environment;
+        public LocalImageStorage(string uploadsPath) => _uploadsPath = uploadsPath;
 
-    public async Task<string> SaveAsync(Stream content, string fileName, CancellationToken ct = default)
-    {
-        var webRoot = _environment.WebRootPath ?? Path.Combine(_environment.ContentRootPath, "wwwroot");
-        var uploadsPath = Path.Combine(webRoot, PublicFolder);
-        Directory.CreateDirectory(uploadsPath);
-
-        var fullPath = Path.Combine(uploadsPath, fileName);
-        await using (var fileStream = File.Create(fullPath))
+        public async Task<string> SaveAsync(Stream content, string fileName, CancellationToken ct = default)
         {
-            await content.CopyToAsync(fileStream, ct);
-        }
+            Directory.CreateDirectory(_uploadsPath);
 
-        return $"/{PublicFolder}/{fileName}";
-    }
+            var fullPath = Path.Combine(_uploadsPath, fileName);
+            await using (var fileStream = File.Create(fullPath))
+            {
+                await content.CopyToAsync(fileStream, ct);
+            }
+
+            // Public URL stays /uploads/<file> regardless of the physical path.
+            return $"/{PublicFolder}/{fileName}";
+        }
 }
