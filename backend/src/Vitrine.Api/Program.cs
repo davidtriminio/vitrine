@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.HttpOverrides;
+using System.Net;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -12,6 +14,16 @@ using Vitrine.Infrastructure.Auth;
 using Vitrine.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders =
+        ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+
+    // Apache corre en la misma máquina y habla por loopback.
+    options.KnownProxies.Add(IPAddress.Loopback);        // 127.0.0.1
+    options.KnownProxies.Add(IPAddress.IPv6Loopback);    // ::1
+});
 
 const string CorsPolicy = "VitrineCors";
 
@@ -77,6 +89,8 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+app.UseForwaredHeaders();
 
 app.UseExceptionHandler();
 
