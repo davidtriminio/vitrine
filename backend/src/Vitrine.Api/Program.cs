@@ -8,6 +8,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Vitrine.Api.Errors;
+using Vitrine.Api.Storage;
 using Vitrine.Application;
 using Vitrine.Infrastructure;
 using Vitrine.Infrastructure.Auth;
