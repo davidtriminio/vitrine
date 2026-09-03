@@ -8,6 +8,7 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Vitrine.Api.Errors;
+using Vitrine.Api.Storage;
 using Vitrine.Application;
 using Vitrine.Infrastructure;
 using Vitrine.Infrastructure.Auth;
@@ -27,8 +28,14 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 
 const string CorsPolicy = "VitrineCors";
 
-// Physical folder for uploaded images (served at /uploads).
-var uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "uploads");
+// Resolve uploads directory: configurable absolute path in production
+// (outside the app dir, writable under ProtectSystem=strict), falls back
+// to wwwroot/uploads for local development.
+var uploadsPath = builder.Configuration["Storage:UploadsPath"];
+if (string.IsNullOrWhiteSpace(uploadsPath))
+{
+    uploadsPath = Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "uploads");
+}
 Directory.CreateDirectory(uploadsPath);
 
 builder.Services
@@ -47,7 +54,8 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
-builder.Services.AddSingleton<Vitrine.Application.Abstractions.IImageStorage, Vitrine.Api.Storage.LocalImageStorage>();
+builder.Services.AddSingleton<Vitrine.Application.Abstractions.IImageStorage>(
+    new LocalImageStorage(uploadsPath));
 
 // ---- Authentication / Authorization ----
 // Configure JwtBearer through the options pipeline so JwtOptions is resolved at runtime
