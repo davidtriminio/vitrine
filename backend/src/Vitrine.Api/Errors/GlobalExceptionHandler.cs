@@ -41,6 +41,11 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
 
         httpContext.Response.StatusCode = status;
 
+        if (exception is TooManyAttemptsException tooMany)
+        {
+            httpContext.Response.Headers.RetryAfter = ((int)Math.Ceiling(tooMany.RetryAfter.TotalSeconds)).ToString();
+        }
+
         return await _problemDetailsService.TryWriteAsync(new ProblemDetailsContext
         {
             HttpContext = httpContext,
@@ -54,6 +59,7 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         NotFoundException => (StatusCodes.Status404NotFound, "Resource not found.", TypeBase + "not-found"),
         ConflictException => (StatusCodes.Status409Conflict, "Conflict.", TypeBase + "conflict"),
         AuthenticationFailedException => (StatusCodes.Status401Unauthorized, "Authentication failed.", TypeBase + "unauthorized"),
+        TooManyAttemptsException => (StatusCodes.Status429TooManyRequests, "Too many attempts.", TypeBase + "too-many-attempts"),
         DomainException => (StatusCodes.Status400BadRequest, "Validation failed.", TypeBase + "validation"),
         _ => (StatusCodes.Status500InternalServerError, "Server error.", TypeBase + "server")
     };

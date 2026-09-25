@@ -23,3 +23,11 @@ public sealed class AuthenticationFailedException : Exception
     {
     }
 }
+
+/// <summary>Too many failed attempts; retry later. Maps to HTTP 429.</summary>
+public sealed class TooManyAttemptsException : Exception
+{
+    public TooManyAttemptsException(string message, TimeSpan retryAfter) : base(message) => RetryAfter = retryAfter;
+
+    public TimeSpan RetryAfter { get; }
+}

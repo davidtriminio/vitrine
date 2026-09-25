@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using System.Net;
+using System.Threading.RateLimiting;
 using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -84,6 +85,38 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+// ---- Abuse protection: per-IP rate limits (stricter on auth endpoints) ----
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    static string ClientKey(HttpContext context) =>
+        context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        RateLimitPartition.GetFixedWindowLimiter(ClientKey(context), _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 300,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        }));
+
+    options.AddPolicy("auth", context =>
+        RateLimitPartition.GetFixedWindowLimiter(ClientKey(context), _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        }));
+});
+
+// Cap request bodies (uploads are limited to 5 MB in the controller).
+builder.WebHost.ConfigureKestrel(kestrel =>
+{
+    kestrel.AddServerHeader = false;
+    kestrel.Limits.MaxRequestBodySize = 6 * 1024 * 1024;
+});
+
 // ---- CORS (frontend origins from config) ----
 var corsOrigins = builder.Configuration.GetSection("Cors:Origins").Get<string[]>()
     ?? new[] { "http://localhost:4200" };
@@ -92,13 +125,41 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(CorsPolicy, policy => policy
         .WithOrigins(corsOrigins)
-        .AllowAnyHeader()
-        .AllowAnyMethod());
+        .WithHeaders("Authorization", "Content-Type", "Accept")
+        .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS"));
 });
 
 var app = builder.Build();
 
+// Fail fast on a weak/missing signing key outside Development/Testing.
+if (!app.Environment.IsDevelopment() && !app.Environment.IsEnvironment("Testing"))
+{
+    var signingKey = app.Configuration["Jwt:Key"];
+    if (string.IsNullOrWhiteSpace(signingKey) || signingKey.Length < 32)
+    {
+        throw new InvalidOperationException("Jwt:Key must be configured with at least 32 characters.");
+    }
+}
+
 app.UseForwardedHeaders();
+
+// Security response headers (API returns JSON/images only, so the CSP is locked down).
+app.Use(async (context, next) =>
+{
+    var headers = context.Response.Headers;
+    headers["X-Content-Type-Options"] = "nosniff";
+    headers["X-Frame-Options"] = "DENY";
+    headers["Referrer-Policy"] = "no-referrer";
+    headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+    headers["Content-Security-Policy"] = "default-src 'none'; img-src 'self'; frame-ancestors 'none'";
+    headers["Cross-Origin-Resource-Policy"] = "cross-origin"; // uploads are embedded by the SPA origin
+    await next();
+});
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHsts();
+}
 
 app.UseExceptionHandler();
 
@@ -124,6 +185,7 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/uploads"
 });
 app.UseCors(CorsPolicy);
+app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
 
