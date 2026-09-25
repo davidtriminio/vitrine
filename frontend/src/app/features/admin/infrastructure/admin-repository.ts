@@ -120,6 +120,13 @@ export class AdminRepository {
       .pipe(map((response) => response.url));
   }
 
+  changePassword(currentPassword: string, newPassword: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/auth/change-password`, {
+      currentPassword,
+      newPassword,
+    });
+  }
+
   getSettings(): Observable<BrandSettings> {
     return this.http.get<BrandSettingsDto>(`${this.base}/settings`).pipe(map(mapBrandSettings));
   }

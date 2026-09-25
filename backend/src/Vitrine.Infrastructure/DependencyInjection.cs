@@ -39,6 +39,7 @@ public static class DependencyInjection
 
         services.AddSingleton<IClock, SystemClock>();
         services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
+        services.AddSingleton<ILoginAttemptTracker, InMemoryLoginAttemptTracker>();
         services.AddScoped<IJwtIssuer, JwtIssuer>();
 
         services.AddScoped<DatabaseSeeder>();

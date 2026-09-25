@@ -2,7 +2,9 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { Router } from '@angular/router';
 import { FormField, form, required } from '@angular/forms/signals';
 import { AppError } from '../../../core/errors/app-error';
+import { TranslationKey } from '../../../core/i18n/es';
 import { TPipe } from '../../../core/i18n/t-pipe';
+import { TranslationService } from '../../../core/i18n/translation-service';
 import { AuthStore } from '../../../core/auth/auth-store';
 import { ButtonComponent } from '../../../shared/ui/button/button';
 
@@ -60,6 +62,7 @@ import { ButtonComponent } from '../../../shared/ui/button/button';
 export class LoginPage {
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
+  private readonly translations = inject(TranslationService);
 
   private readonly model = signal({ username: '', password: '' });
   protected readonly loginForm = form(this.model, (path) => {
@@ -84,7 +87,13 @@ export class LoginPage {
       await this.router.navigate(['/admin']);
     } catch (error) {
       const appError = error as AppError;
-      this.errorMessage.set(appError.status === 401 ? 'Usuario o contraseña inválidos.' : 'Error al ingresar.');
+      const key: TranslationKey =
+        appError.status === 401
+          ? 'admin.loginError'
+          : appError.status === 429
+            ? 'admin.password.tooMany'
+            : 'admin.saveError';
+      this.errorMessage.set(this.translations.t(key));
     } finally {
       this.submitting.set(false);
     }

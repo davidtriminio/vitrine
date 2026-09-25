@@ -54,7 +54,7 @@ import { Product } from '../domain/catalog-models';
           {{ product().name }}
         </h3>
 
-        <div class="mt-auto flex items-baseline gap-2 pt-3">
+        <div class="mt-auto flex flex-wrap items-baseline gap-x-2 gap-y-0.5 pt-3">
           <span class="text-lg font-bold tracking-tight text-fg">
             {{ product().price.finalPrice | money }}
           </span>

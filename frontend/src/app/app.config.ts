@@ -6,10 +6,11 @@ import {
   inject,
 } from '@angular/core';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { TitleStrategy, provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideLucideIcons } from '@lucide/angular';
 import { routes } from './app.routes';
 import { API_BASE_URL, resolveApiBaseUrl } from './core/config/app-config';
+import { BrandTitleStrategy } from './core/title/brand-title-strategy';
 import { authInterceptor } from './core/http/auth-interceptor';
 import { errorInterceptor } from './core/http/error-interceptor';
 import { SettingsStore } from './core/settings/settings-store';
@@ -20,6 +21,7 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes, withComponentInputBinding()),
+    { provide: TitleStrategy, useExisting: BrandTitleStrategy },
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     { provide: API_BASE_URL, useFactory: resolveApiBaseUrl },
     // Curated offer icons, resolvable by name via <app-offer-icon>.

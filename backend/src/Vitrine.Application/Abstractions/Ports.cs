@@ -108,6 +108,19 @@ public interface IBrandSettingsRepository
 public interface IAdminUserRepository
 {
     Task<AdminUser?> GetByUsernameAsync(string username, CancellationToken ct = default);
+
+    Task<AdminUser?> GetByIdAsync(Guid id, CancellationToken ct = default);
+}
+
+/// <summary>Tracks failed sign-in attempts to apply a temporary lockout (brute-force defense).</summary>
+public interface ILoginAttemptTracker
+{
+    /// <summary>Time left before the key may try again, or null when not locked out.</summary>
+    TimeSpan? GetLockoutRemaining(string key);
+
+    void RegisterFailure(string key);
+
+    void Reset(string key);
 }
 
 /// <summary>Commits pending changes made through the repositories.</summary>
