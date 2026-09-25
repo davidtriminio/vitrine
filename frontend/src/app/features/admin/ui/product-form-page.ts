@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, input, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { FormField, form, pattern, required } from '@angular/forms/signals';
+import { FormField, form, max, maxLength, min, minLength, pattern, required } from '@angular/forms/signals';
 import { AppError } from '../../../core/errors/app-error';
+import { TranslationKey } from '../../../core/i18n/es';
 import { TPipe } from '../../../core/i18n/t-pipe';
+import { TranslationService } from '../../../core/i18n/translation-service';
 import { ButtonComponent } from '../../../shared/ui/button/button';
 import { Category, ProductAttribute } from '../../catalog/domain/catalog-models';
 import { AdminRepository, ProductWriteRequest } from '../infrastructure/admin-repository';
@@ -13,7 +15,7 @@ interface ProductFormModel {
   sku: string;
   description: string;
   categoryId: string;
-  basePrice: number;
+  basePrice: number | null;
   imageUrl: string;
   isActive: boolean;
 }
@@ -23,7 +25,7 @@ const EMPTY_MODEL: ProductFormModel = {
   sku: '',
   description: '',
   categoryId: '',
-  basePrice: 0,
+  basePrice: null,
   imageUrl: '',
   isActive: true,
 };
@@ -40,13 +42,16 @@ const EMPTY_MODEL: ProductFormModel = {
 
       <div class="mt-6 space-y-4">
         <div>
-          <label for="name" class="text-sm font-medium text-fg">{{ 'admin.name' | t }}</label>
+          <label for="name" class="text-sm font-medium text-fg">{{ 'admin.name' | t }} *</label>
           <input id="name" [formField]="productForm.name" [class]="inputClass" />
+          @if (errorOf(productForm.name())) {
+            <p class="mt-1 text-xs text-danger">{{ errorOf(productForm.name()) }}</p>
+          }
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
           <div>
-            <label for="sku" class="text-sm font-medium text-fg">{{ 'admin.sku' | t }}</label>
+            <label for="sku" class="text-sm font-medium text-fg">{{ 'admin.sku' | t }} *</label>
             <input
               id="sku"
               inputmode="numeric"
@@ -54,11 +59,15 @@ const EMPTY_MODEL: ProductFormModel = {
               [formField]="productForm.sku"
               [class]="inputClass"
             />
-            <p class="mt-1 text-xs text-fg-muted">{{ 'admin.skuHint' | t }}</p>
+            @if (errorOf(productForm.sku())) {
+              <p class="mt-1 text-xs text-danger">{{ errorOf(productForm.sku()) }}</p>
+            } @else {
+              <p class="mt-1 text-xs text-fg-muted">{{ 'admin.skuHint' | t }}</p>
+            }
           </div>
           <div>
             <label for="basePrice" class="text-sm font-medium text-fg">
-              {{ 'admin.basePrice' | t }}
+              {{ 'admin.basePrice' | t }} *
             </label>
             <input
               id="basePrice"
@@ -66,12 +75,15 @@ const EMPTY_MODEL: ProductFormModel = {
               [formField]="productForm.basePrice"
               [class]="inputClass"
             />
+            @if (errorOf(productForm.basePrice())) {
+              <p class="mt-1 text-xs text-danger">{{ errorOf(productForm.basePrice()) }}</p>
+            }
           </div>
         </div>
 
         <div>
           <label for="category" class="text-sm font-medium text-fg">
-            {{ 'admin.category' | t }}
+            {{ 'admin.category' | t }} *
           </label>
           <select id="category" [formField]="productForm.categoryId" [class]="inputClass">
             <option value="" disabled>—</option>
@@ -79,11 +91,14 @@ const EMPTY_MODEL: ProductFormModel = {
               <option [value]="category.id">{{ category.name }}</option>
             }
           </select>
+          @if (errorOf(productForm.categoryId())) {
+            <p class="mt-1 text-xs text-danger">{{ errorOf(productForm.categoryId()) }}</p>
+          }
         </div>
 
         <div>
           <label for="description" class="text-sm font-medium text-fg">
-            {{ 'admin.description' | t }}
+            {{ 'admin.description' | t }} *
           </label>
           <textarea
             id="description"
@@ -91,13 +106,19 @@ const EMPTY_MODEL: ProductFormModel = {
             [formField]="productForm.description"
             [class]="inputClass"
           ></textarea>
+          @if (errorOf(productForm.description())) {
+            <p class="mt-1 text-xs text-danger">{{ errorOf(productForm.description()) }}</p>
+          }
         </div>
 
         <app-image-input
-          [label]="'admin.image' | t"
+          [label]="('admin.image' | t) + ' *'"
           [value]="productForm.imageUrl().value()"
           (valueChange)="setImage($event)"
         />
+        @if (!productForm.imageUrl().value().trim()) {
+          <p class="-mt-2 text-xs text-fg-muted">{{ 'admin.field.imageRequired' | t }}</p>
+        }
 
         <label class="flex items-center gap-2 text-sm text-fg">
           <input type="checkbox" [formField]="productForm.isActive" />
@@ -130,6 +151,7 @@ const EMPTY_MODEL: ProductFormModel = {
 export class ProductFormPage implements OnInit {
   private readonly repository = inject(AdminRepository);
   private readonly router = inject(Router);
+  private readonly translations = inject(TranslationService);
 
   readonly id = input<string>();
 
@@ -145,11 +167,28 @@ export class ProductFormPage implements OnInit {
   private existingAttributes: ProductAttribute[] = [];
 
   protected readonly productForm = form(this.model, (path) => {
-    required(path.name);
-    required(path.sku);
+    required(path.name, { message: 'admin.field.required' });
+    maxLength(path.name, 120, { message: 'admin.field.nameMax' });
+    required(path.sku, { message: 'admin.field.required' });
     pattern(path.sku, /^\d+$/, { message: 'admin.skuInvalid' });
-    required(path.categoryId);
+    required(path.categoryId, { message: 'admin.field.required' });
+    required(path.basePrice, { message: 'admin.field.required' });
+    min(path.basePrice, 0.01, { message: 'admin.field.priceMin' });
+    max(path.basePrice, 9_999_999.99, { message: 'admin.field.priceMax' });
+    required(path.description, { message: 'admin.field.required' });
+    minLength(path.description, 10, { message: 'admin.field.descriptionMin' });
+    maxLength(path.description, 2000, { message: 'admin.field.descriptionMax' });
+    required(path.imageUrl, { message: 'admin.field.imageRequired' });
   });
+
+  /** First validation message of a touched field (message holds an i18n key), or null. */
+  protected errorOf(state: {
+    touched(): boolean;
+    errors(): readonly { message?: string }[];
+  }): string | null {
+    const message = state.touched() ? state.errors()[0]?.message : undefined;
+    return message ? this.translations.t(message as TranslationKey) : null;
+  }
 
   ngOnInit(): void {
     this.repository.getCategories().subscribe({
@@ -203,7 +242,7 @@ export class ProductFormPage implements OnInit {
       sku: values.sku,
       description: values.description,
       categoryId: values.categoryId,
-      basePrice: Number(values.basePrice),
+      basePrice: Number(values.basePrice ?? 0),
       images: values.imageUrl.trim() ? [values.imageUrl.trim()] : [],
       attributes: this.existingAttributes,
       isActive: values.isActive,

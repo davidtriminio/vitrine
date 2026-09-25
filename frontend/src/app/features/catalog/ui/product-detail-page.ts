@@ -65,7 +65,7 @@ import { WhatsappService } from '../application/whatsapp-service';
               {{ 'product.reference' | t: { sku: p.sku } }}
             </span>
 
-            <div class="mt-3 flex items-center gap-3">
+            <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
               <span class="text-2xl font-bold text-fg">{{ p.price.finalPrice | money }}</span>
               @if (p.price.hasDiscount) {
                 <span class="text-base text-fg-muted line-through">
@@ -232,7 +232,7 @@ export class ProductDetailPage implements OnInit {
       product.description?.trim() || `${product.name} — ${brandName}`;
     const image = product.images[0] ?? '';
 
-    this.title.setTitle(`${product.name} — ${brandName}`);
+    this.title.setTitle(`${brandName} — ${product.name}`);
     this.meta.updateTag({ name: 'description', content: description });
     this.meta.updateTag({ property: 'og:type', content: 'product' });
     this.meta.updateTag({ property: 'og:site_name', content: brandName });
