@@ -40,4 +40,15 @@ public sealed class AdminUser
         PasswordHash = passwordHash;
         Role = string.IsNullOrWhiteSpace(role) ? AdminRole : role.Trim();
     }
+
+    /// <summary>Replaces the stored password hash (the raw password never reaches the domain).</summary>
+    public void ChangePasswordHash(string newPasswordHash)
+    {
+        if (string.IsNullOrWhiteSpace(newPasswordHash))
+        {
+            throw new DomainException("Password hash is required.");
+        }
+
+        PasswordHash = newPasswordHash;
+    }
 }

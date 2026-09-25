@@ -102,6 +102,7 @@ public sealed class ProductService : IProductService
 
     public async Task<ProductResponse> CreateAsync(CreateProductRequest request, CancellationToken ct = default)
     {
+        ProductRules.Validate(request.Name, request.Description, request.BasePrice, request.Images);
         await EnsureCategoryExistsAsync(request.CategoryId, ct);
 
         var sku = Product.NormalizeSku(request.Sku);
@@ -133,6 +134,7 @@ public sealed class ProductService : IProductService
         var product = await _products.GetByIdAsync(id, ct)
             ?? throw new NotFoundException($"Product '{id}' was not found.");
 
+        ProductRules.Validate(request.Name, request.Description, request.BasePrice, request.Images);
         await EnsureCategoryExistsAsync(request.CategoryId, ct);
 
         var sku = Product.NormalizeSku(request.Sku);

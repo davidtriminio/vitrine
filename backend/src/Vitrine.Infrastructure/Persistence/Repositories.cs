@@ -168,6 +168,9 @@ public sealed class AdminUserRepository : IAdminUserRepository
         var normalized = username.Trim().ToLowerInvariant();
         return _db.AdminUsers.FirstOrDefaultAsync(u => u.Username == normalized, ct);
     }
+
+    public Task<AdminUser?> GetByIdAsync(Guid id, CancellationToken ct = default) =>
+        _db.AdminUsers.FirstOrDefaultAsync(u => u.Id == id, ct);
 }
 
 public sealed class UnitOfWork : IUnitOfWork
