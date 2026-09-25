@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
-import { FormField, form, pattern, required } from '@angular/forms/signals';
+import { FormField, form, maxLength, minLength, pattern, required, validate } from '@angular/forms/signals';
 import { AppError } from '../../../core/errors/app-error';
 import { TranslationKey } from '../../../core/i18n/es';
 import { TPipe } from '../../../core/i18n/t-pipe';
@@ -135,6 +135,63 @@ const THEME_FIELDS: string[] = [
         </div>
       </section>
 
+      <!-- Change password -->
+      <section class="mt-6 rounded-lg border border-muted bg-surface p-4">
+        <h2 class="text-sm font-bold text-fg">{{ 'admin.password.section' | t }}</h2>
+        <p class="mt-1 text-xs text-fg-muted">{{ 'admin.password.rules' | t }}</p>
+        <div class="mt-4 space-y-4">
+          <div>
+            <label for="currentPassword" class="text-sm font-medium text-fg">{{ 'admin.password.current' | t }}</label>
+            <input
+              id="currentPassword"
+              type="password"
+              autocomplete="current-password"
+              [formField]="passwordForm.currentPassword"
+              [class]="inputClass"
+            />
+          </div>
+          <div>
+            <label for="newPassword" class="text-sm font-medium text-fg">{{ 'admin.password.new' | t }}</label>
+            <input
+              id="newPassword"
+              type="password"
+              autocomplete="new-password"
+              [formField]="passwordForm.newPassword"
+              [class]="inputClass"
+            />
+            @if (passwordForm.newPassword().touched() && passwordForm.newPassword().invalid()) {
+              <p class="mt-1 text-xs text-danger">{{ 'admin.password.weak' | t }}</p>
+            }
+          </div>
+          <div>
+            <label for="confirmPassword" class="text-sm font-medium text-fg">{{ 'admin.password.confirm' | t }}</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              autocomplete="new-password"
+              [formField]="passwordForm.confirmPassword"
+              [class]="inputClass"
+            />
+            @if (passwordForm.confirmPassword().touched() && passwordForm.confirmPassword().invalid()) {
+              <p class="mt-1 text-xs text-danger">{{ 'admin.password.mismatch' | t }}</p>
+            }
+          </div>
+          @if (passwordSuccess()) {
+            <p class="text-sm text-success">{{ 'admin.password.success' | t }}</p>
+          }
+          @if (passwordError()) {
+            <p class="text-sm text-danger">{{ passwordError() }}</p>
+          }
+          <app-button
+            [loading]="passwordSubmitting()"
+            [disabled]="passwordForm().invalid()"
+            (click)="submitPassword()"
+          >
+            {{ 'admin.password.submit' | t }}
+          </app-button>
+        </div>
+      </section>
+
       @if (savedMessage()) {
         <p class="mt-4 text-sm text-success">{{ savedMessage() }}</p>
       }
@@ -181,6 +238,52 @@ export class SettingsPage implements OnInit {
     required(path.whatsappNumber);
     pattern(path.whatsappNumber, /^\d+$/, { message: 'admin.whatsappHint' });
   });
+
+  protected readonly passwordSubmitting = signal(false);
+  protected readonly passwordSuccess = signal(false);
+  protected readonly passwordError = signal<string | null>(null);
+
+  private readonly passwordModel = signal({ currentPassword: '', newPassword: '', confirmPassword: '' });
+
+  // Mirrors the server policy (min 10, upper + lower + number); the server is the authority.
+  protected readonly passwordForm = form(this.passwordModel, (path) => {
+    required(path.currentPassword);
+    required(path.newPassword);
+    minLength(path.newPassword, 10);
+    maxLength(path.newPassword, 128);
+    pattern(path.newPassword, /^(?=.*\p{Ll})(?=.*\p{Lu})(?=.*\d).+$/u);
+    required(path.confirmPassword);
+    validate(path.confirmPassword, ({ value, valueOf }) =>
+      value() === valueOf(path.newPassword) ? undefined : { kind: 'mismatch' },
+    );
+  });
+
+  submitPassword(): void {
+    if (this.passwordForm().invalid()) {
+      return;
+    }
+
+    this.passwordSubmitting.set(true);
+    this.passwordSuccess.set(false);
+    this.passwordError.set(null);
+
+    const { currentPassword, newPassword } = this.passwordModel();
+    this.repository.changePassword(currentPassword, newPassword).subscribe({
+      next: () => {
+        this.passwordSubmitting.set(false);
+        this.passwordSuccess.set(true);
+        this.passwordModel.set({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      },
+      error: (error: AppError) => {
+        this.passwordSubmitting.set(false);
+        this.passwordError.set(
+          error.status === 429
+            ? this.translations.t('admin.password.tooMany')
+            : (error.detail ?? error.title),
+        );
+      },
+    });
+  }
 
   ngOnInit(): void {
     this.repository.getSettings().subscribe({
