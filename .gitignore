@@ -547,3 +547,7 @@ design.md
 
 # Uploaded media (local disk storage)
 backend/src/Vitrine.Api/wwwroot/
+
+# Flutter mobile app: re-include Android/iOS XML that the global *.xml rule would drop
+!mobile/**/*.xml
+mobile/**/local.properties
